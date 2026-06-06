@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - PiringKita</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+         body {
+            font-family: "Inter", sans-serif;
+            margin: 0;
+            padding: 0 16px 120px 16px; /* agar konten tidak tertutup bottom nav */
+            background: #f4f6f9;
+        }
+
+
+        .header {
+            padding: 16px 12px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .welcome-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .username {
+            font-weight: 600;
+            font-size: 20px;
+            color: #25D366;
+        }
+
+        .search-bar {
+            padding: 12px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 2px solid #e1e8ed;
+            font-size: 14px;
+            background: #fafbfc;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #25D366;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+        }
+
+        .filter-section {
+            padding: 12px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .filter-btn {
+            padding: 10px 16px;
+            background: white;
+            border-radius: 20px;
+            border: 2px solid #e1e8ed;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            border-color: #25D366;
+        }
+
+        .filter-btn.active {
+            background: #25D366;
+            color: white;
+            border-color: #25D366;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            padding: 16px 12px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #e1e8ed;
+            font-size: 13px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .action-btn:hover {
+            border-color: #25D366;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.active {
+            background: #25D366;
+            color: white;
+            border-color: #25D366;
+        }
+
+        .banner {
+            width: calc(100% - 24px);
+            height: 140px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #25D366, #2ecc71);
+            margin: 12px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+
+        .section-title {
+            font-weight: 600;
+            margin: 20px 12px 12px 12px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .section-subtitle {
+            margin: 0 12px 16px 12px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .scroll-row {
+            display: flex;
+            padding: 0 12px 12px 12px;
+            overflow-x: auto;
+            gap: 16px;
+            scrollbar-width: none;
+        }
+
+        .scroll-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .place-card {
+            min-width: 160px;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #ececec;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .place-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+        .place-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            background: #f5f5f5;
+        }
+
+        .place-info {
+            padding: 12px;
+        }
+
+        .place-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #333;
+            line-height: 1.3;
+        }
+
+        .place-address {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .place-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: #ff9500;
+            font-weight: 500;
+        }
+
+        .place-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #e8f5e8;
+            color: #25D366;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 500;
+            margin-top: 6px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 70px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+            font-size: 11px;
+            gap: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: #25D366;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active .nav-icon {
+            opacity: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            width: 100%;
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            opacity: 0.4;
+            margin-bottom: 16px;
+        }
+
+        .empty-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .empty-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .add-first-btn {
+            padding: 12px 24px;
+            background: #25D366;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-first-btn:hover {
+            background: #1ea952;
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .hot-badge {
+            background: #ff6b00 !important;
+            color: white !important;
+        }
+
+        .popular-badge {
+            background: #e4405f !important;
+            color: white !important;
+        }
+
+        .admin-badge {
+            background: #3498db !important;
+            color: white !important;
+        }
+
+        @media (max-width: 480px) {
+            .place-card {
+                min-width: 140px;
+            }
+            
+            .banner {
+                height: 120px;
+                font-size: 16px;
+            }
+            
+            .section-title {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+     <div class="admin-header">
+        <div class="admin-welcome">Selamat datang, Admin</div>
+        <div class="admin-title" th:text="${user.username}">Administrator</div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+        <input id="searchInput" class="search-input" type="text" placeholder="🔍 Cari tempat makan..." />
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-row">
+            <button class="filter-btn" onclick="setFilter('all')" th:classappend="${filter == 'all'} ? 'active' : ''">Semua</button>
+            <button class="filter-btn" onclick="setFilter('rating_tertinggi')" th:classappend="${filter == 'rating_tertinggi'} ? 'active' : ''">⭐ Rating Tertinggi</button>
+            <button class="filter-btn" onclick="setFilter('terpopuler')" th:classappend="${filter == 'terpopuler'} ? 'active' : ''">🔥 Terpopuler</button>
+            <button class="filter-btn" onclick="setFilter('murah')" th:classappend="${filter == 'murah'} ? 'active' : ''">💵 Harga Murah</button>
+        </div>
+    </div>
+    
+
+    <!-- Banner -->
+    <div class="banner">
+        Temukan Kuliner Terbaik di Sekitarmu!
+    </div>
+
+    <!-- SEMUA WARUNG YANG APPROVED -->
+    <div class="section-title">Semua Tempat Makan</div>
+    <div class="section-subtitle">Tempat makan yang sudah terverifikasi</div>
+
+    <div class="scroll-row" id="allWarungsContainer">
+        <!-- Data semua warung yang approved dari database -->
+        <div class="place-card" th:each="warung : ${allWarungs}" 
+             th:onclick="|viewWarungDetail(${warung.id})|">
+            
+            <!-- FIXED: Image path dengan proper error handling -->
+            <img th:src="@{'/uploads/' + ${warung.imageName}}" 
+                 class="place-image" 
+                 alt="Restaurant Image"
+                 onerror="this.onerror=null; this.src='/icons/restaurant-placeholder.jpg'">
+            
+            <div class="place-info">
+                <div class="place-name" th:text="${warung.nama} ?: 'Nama Tidak Tersedia'">Nama Restaurant</div>
+                <div class="place-address" th:text="${warung.alamat} ?: 'Alamat tidak tersedia'">Alamat restaurant</div>
+                <div class="place-rating">
+                    <span>⭐</span>
+                    <!-- FIXED: Handle null rating dengan aman -->
+                    <span th:text="${warung.rating != null} ? ${warung.rating} : '0'">5</span>
+                    <span>/5</span>
+                </div>
+                <!-- FIXED: Tag display dengan null safety -->
+                <div class="place-tag hot-badge" th:if="${warung.rating >= 4}">🔥 Top Rated</div>
+                <div class="place-tag popular-badge" th:if="${warung.rating >= 3 && warung.rating < 4}">🔥 Popular</div>
+                <div class="place-tag" th:if="${warung.tag != null and warung.rating < 3}" 
+                     th:text="${warung.tag}">Recommended</div>
+                <div class="place-tag admin-badge" th:if="${warung.status == 'approved'}">✓ Verified</div>
+            </div>
+        </div>
+
+        <!-- Empty State untuk semua warung -->
+        <div class="empty-state" th:if="${#lists.isEmpty(allWarungs)}">
+            <img src="/icons/restaurant-placeholder.jpg" class="empty-icon" alt="No restaurants" />
+            <div class="empty-title">Belum ada tempat makan</div>
+            <div class="empty-subtitle">Jadilah yang pertama menambahkan tempat makan!</div>
+            <button class="add-first-btn" onclick="goTo('tambahwarung')">+ Tambah Tempat Makan</button>
+        </div>
+    </div>
+
+    <!-- Recommended Restaurants Section - Rating Tertinggi -->
+    <div class="section-title" th:if="${not #lists.isEmpty(warungsRatingTertinggi)}">Rekomendasi Terbaik</div>
+    <div class="section-subtitle" th:if="${not #lists.isEmpty(warungsRatingTertinggi)}">Tempat makan dengan rating tertinggi</div>
+
+    <div class="scroll-row" th:if="${not #lists.isEmpty(warungsRatingTertinggi)}" id="recommendedContainer">
+        <!-- Data warung dengan rating tertinggi -->
+        <div class="place-card" th:each="warung : ${warungsRatingTertinggi}" 
+             th:onclick="|viewWarungDetail(${warung.id})|">
+            
+            <img th:src="@{'/uploads/' + ${warung.imageName}}" 
+                 class="place-image" 
+                 alt="Restaurant Image"
+                 onerror="this.onerror=null; this.src='/icons/restaurant-placeholder.jpg'">
+            
+            <div class="place-info">
+                <div class="place-name" th:text="${warung.nama} ?: 'Nama Tidak Tersedia'">Nama Restaurant</div>
+                <div class="place-address" th:text="${warung.alamat} ?: 'Alamat tidak tersedia'">Alamat restaurant</div>
+                <div class="place-rating">
+                    <span>⭐</span>
+                    <span th:text="${warung.rating != null} ? ${warung.rating} : '0'">5</span>
+                    <span>/5</span>
+                </div>
+                <div class="place-tag hot-badge">🔥 Top Rated</div>
+                <div class="place-tag admin-badge" th:if="${warung.status == 'approved'}">✓ Verified</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popular Restaurants Section -->
+    <div class="section-title" th:if="${not #lists.isEmpty(warungsTerpopuler)}">Sedang Populer</div>
+    <div class="section-subtitle" th:if="${not #lists.isEmpty(warungsTerpopuler)}">Tempat makan populer pilihan komunitas</div>
+
+    <div class="scroll-row" th:if="${not #lists.isEmpty(warungsTerpopuler)}" id="popularContainer">
+        <!-- Data warung terpopuler -->
+        <div class="place-card" th:each="warung : ${warungsTerpopuler}" 
+             th:onclick="|viewWarungDetail(${warung.id})|">
+            
+            <img th:src="@{'/uploads/' + ${warung.imageName}}" 
+                 class="place-image" 
+                 alt="Restaurant Image"
+                 onerror="this.onerror=null; this.src='/icons/restaurant-placeholder.jpg'">
+            
+            <div class="place-info">
+                <div class="place-name" th:text="${warung.nama} ?: 'Nama Tidak Tersedia'">Nama Restaurant</div>
+                <div class="place-address" th:text="${warung.alamat} ?: 'Alamat tidak tersedia'">Alamat restaurant</div>
+                <div class="place-rating">
+                    <span>⭐</span>
+                    <span th:text="${warung.rating != null} ? ${warung.rating} : '0'">4</span>
+                    <span>/5</span>
+                </div>
+                <div class="place-tag popular-badge">🔥 Popular</div>
+                <div class="place-tag admin-badge" th:if="${warung.status == 'approved'}">✓ Verified</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="/dashboardAdmin" class="nav-item active">
+            <img src="/icons/home.png" class="nav-icon" alt="Home" />
+            <span>Home</span>
+        </a>
+        
+        <!-- TAMBAH ADMIN LINK -->
+        <a href="/admin-warung-list" class="nav-item">
+            <img src="/icons/admin.png" class="nav-icon" alt="Admin" />
+            <span>Admin</span>
+        </a>
+        
+    </div>
+
+    <script>
+        // Filter functionality
+        function setFilter(type) {
+            window.location.href = '/dashboard?filter=' + type;
+        }
+
+        // Navigation functionality
+        function goTo(page) {
+            window.location.href = '/' + page;
+        }
+
+        // View warung detail - PERBAIKAN PATH
+        function viewWarungDetail(warungId) {
+            window.location.href = '/warung/detail/' + warungId;
+        }
+
+
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                const keyword = e.target.value.trim();
+                if (keyword) {
+                    window.location.href = '/search?q=' + encodeURIComponent(keyword);
+                }
+            }
+        });
+
+        // Enhanced card interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.place-card');
+            cards.forEach(card => {
+                card.style.cursor = 'pointer';
+                
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-4px)';
+                    this.style.boxShadow = '0 6px 20px rgba(0,0,0,0.12)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+                });
+            });
+
+            // Auto-hide address if too long
+            const addresses = document.querySelectorAll('.place-address');
+            addresses.forEach(address => {
+                if (address.textContent.length > 50) {
+                    address.textContent = address.textContent.substring(0, 47) + '...';
+                }
+            });
+        });
+
+        // Simple loading state
+        function showLoading() {
+            const container = document.getElementById('allWarungsContainer');
+            container.innerHTML = '<div class="loading">Memuat data...</div>';
+        }
+    </script>
+</body>
+</html>

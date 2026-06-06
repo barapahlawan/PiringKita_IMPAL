@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Riwayat Warung</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
+            color: #2c3e50;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .card img {
+            width: 100%;
+            border-radius: 10px;
+            height: 170px;
+            object-fit: cover;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 12px;
+        }
+
+        .action-row {
+            margin-top: 12px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .edit-btn {
+            background: #3498db;
+            color: white;
+        }
+        .edit-btn:hover { background: #2980b9; }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        .delete-btn:hover { background: #c0392b; }
+
+        /* ===== MODAL ===== */
+        /* ===== MODAL OVERLAY ===== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.55);      /* overlay lebih gelap */
+    backdrop-filter: blur(2px);        /* blur background */
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;                     /* pastikan di atas */
+}
+
+/* ===== MODAL BOX ===== */
+.modal-content {
+    background: #fff;
+    width: 90%;
+    max-width: 420px;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    text-align: center;
+    animation: popIn 0.25s ease-out;    /* animasi */
+}
+
+/* Animasi muncul */
+@keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+
+        .modal h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .modal p {
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .cancel-btn {
+            background: #bdc3c7;
+            color: #2c3e50;
+        }
+        .cancel-btn:hover { background: #a6acb0; }
+
+        .confirm-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        .confirm-btn:hover { background: #c0392b; }
+        .back-btn {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 18px;
+        background-color: #41c65e;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: 0.2s ease-in-out;
+    }
+
+    .back-btn:hover {
+        background-color: #05571f;
+    }
+
+    </style>
+</head>
+
+<body>
+<a href="/dashboard" class="back-btn">← Kembali</a>
+<h2>Riwayat Warung Anda</h2>
+
+<div th:if="${#lists.isEmpty(warungs)}">
+    <p>Belum ada warung yang Anda tambahkan.</p>
+</div>
+
+<div th:each="w : ${warungs}" class="card">
+
+    <img th:src="@{'/uploads/' + ${w.imageName}}" alt="gambar-warung">
+
+    <div class="title" th:text="${w.nama}"></div>
+    <div th:text="${w.alamat}"></div>
+
+    <div class="action-row">
+        <button class="btn edit-btn" 
+                th:onclick="'openEditModal(' + ${w.id} + ');'">Edit</button>
+
+        <button class="btn delete-btn" 
+                th:onclick="'openDeleteModal(' + ${w.id} + ');'">Hapus</button>
+    </div>
+</div>
+
+<!-- ===================== DELETE MODAL ===================== -->
+<div class="modal" id="deleteModal">
+    <div class="modal-content">
+        <h3>Hapus Warung?</h3>
+        <p>Apakah Anda yakin ingin menghapus warung ini?</p>
+
+        <div class="modal-buttons">
+            <button class="btn cancel-btn" onclick="closeModals()">Batal</button>
+
+            <form id="deleteForm" method="post">
+                <button class="btn confirm-btn" type="submit">Hapus</button>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- ===================== EDIT MODAL ===================== -->
+<div class="modal" id="editModal">
+    <div class="modal-content">
+        <h3>Edit Warung</h3>
+        <p>Klik tombol di bawah untuk mengedit warung ini.</p>
+
+        <div class="modal-buttons">
+            <button class="btn cancel-btn" onclick="closeModals()">Batal</button>
+
+            <!-- LINK EDIT ↓ WAJIB ADA -->
+            <a id="editLink" class="btn confirm-btn" href="#">
+                Edit Sekarang
+            </a>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    
+function openDeleteModal(id) {
+    document.getElementById("deleteForm").action = "/warung/delete/" + id;
+    document.getElementById("deleteModal").style.display = "flex";
+}
+
+
+
+
+function openEditModal(id) {
+    document.getElementById("editLink").href = "/warung/edit/" + id;
+    document.getElementById("editModal").style.display = "flex";
+}
+
+    function closeModals() {
+        document.getElementById("deleteModal").style.display = "none";
+        document.getElementById("editModal").style.display = "none";
+    }
+</script>
+
+</body>
+</html>

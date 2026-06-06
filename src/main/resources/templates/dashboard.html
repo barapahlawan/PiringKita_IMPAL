@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - PiringKita</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            min-height: 100vh;
+            padding: 0px 16px 180px 16px;
+            padding-bottom: 100px;
+        }
+
+        
+
+        .header {
+            padding: 16px 12px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .welcome-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .username {
+            font-weight: 600;
+            font-size: 20px;
+            color: #25D366;
+        }
+
+        .search-bar {
+            padding: 12px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative; 
+            display: flex;
+            align-items: center;
+        }
+        .search-icon-img {
+            position: absolute;
+            left: 28px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            opacity: 0.5;
+            z-index: 10;
+            pointer-events: none;
+            
+            /* TAMBAHAN BARU: Efek transisi halus */
+            transition: opacity 0.2s ease; 
+        }
+
+        .search-input {
+            width: 100%;
+            height: 48px; /* Tinggi input agar tombol muat */
+            
+            /* PENTING: Memberi ruang agar teks tidak tertutup ikon/tombol */
+            padding-left: 45px;  /* Ruang untuk Ikon Kiri */
+            padding-right: 80px; /* Ruang untuk Tombol Kanan */
+            
+            border-radius: 12px;
+            border: 2px solid #e1e8ed;
+            font-size: 14px;
+            background: #fafbfc;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #25D366;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+        }
+
+        .search-button {
+            position: absolute;
+            right: 20px; /* Jarak dari kanan */
+            top: 50%;
+            transform: translateY(-50%);
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            z-index: 10;
+            transition: background 0.3s ease;
+        }
+        .search-button:hover {
+            background: #1ea952;
+        }
+
+
+        /* === FILTER SECTION === */
+        .filter-section {
+            padding: 12px 12px 4px 12px;
+            background: white;
+            border-bottom: 1px solid #eee;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding-bottom: 4px;
+        }
+
+        .filter-row::-webkit-scrollbar {
+            display: none;
+        }
+        .filter-icon-img {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: #fff;
+            border-radius: 25px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-weight: 500;
+            transition: 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Jarak antara ikon dan teks */
+        }
+
+        .filter-btn:hover {
+            background: #fafafa;
+            border-color: #bbb;
+        }
+
+        .filter-btn.active {
+            background: #25D366;
+            color: white;
+            border-color: #25D366;
+        }
+
+        /* === ADVANCED FILTER SIDEBAR === */
+        .filter-advanced-popup {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            display: none;
+            justify-content: flex-end;
+            align-items: flex-start;
+            z-index: 10000;
+        }
+
+        .filter-advanced-container {
+            width: 90%;
+            max-width: 320px;
+            height: 100vh;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .filter-advanced-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .filter-advanced-header h2 {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .close-advanced-filter {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .filter-advanced-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .filter-sidebar {
+            width: 120px;
+            background: #f8f8f8;
+            border-right: 1px solid #eee;
+            overflow-y: auto;
+        }
+
+        .filter-sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .filter-sidebar li {
+            padding: 16px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #444;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .filter-sidebar li:hover {
+            background: #f0f0f0;
+        }
+
+        .filter-sidebar li.active {
+            border-left: 3px solid #25D366;
+            background: white;
+            font-weight: 600;
+            color: #25D366;
+        }
+
+        .filter-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .filter-content h3 {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .filter-content-section {
+            display: none;
+        }
+
+        .filter-content-section.active {
+            display: block;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 14px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            accent-color: #25D366;
+            cursor: pointer;
+        }
+
+        .filter-apply-btn {
+            margin: 20px;
+            padding: 14px;
+            background: #25D366;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-apply-btn:hover {
+            background: #1ea952;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            padding: 16px 12px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #e1e8ed;
+            font-size: 13px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .action-btn:hover {
+            border-color: #25D366;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.active {
+            background: #25D366;
+            color: white;
+            border-color: #25D366;
+        }
+
+       
+
+        .section-title {
+            font-weight: 600;
+            margin: 20px 12px 12px 12px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .section-subtitle {
+            margin: 0 12px 16px 12px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .scroll-row {
+            display: flex;
+            padding: 0 12px 12px 12px;
+            overflow-x: auto;
+            gap: 16px;
+            scrollbar-width: none;
+        }
+
+        .scroll-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .place-card {
+            min-width: 160px;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #ececec;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .place-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+        .place-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            background: #f5f5f5;
+        }
+
+        .place-info {
+            padding: 12px;
+        }
+
+        .place-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #333;
+            line-height: 1.3;
+        }
+
+        .place-address {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .place-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: #ff9500;
+            font-weight: 500;
+        }
+
+        .place-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #e8f5e8;
+            color: #25D366;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 500;
+            margin-top: 6px;
+        }
+
+        .bottom-nav {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        background: #ffffff;
+        padding: 10px 16px;
+        display: flex;
+        justify-content: space-between;
+        border-radius: 18px;
+        box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.18);
+        backdrop-filter: blur(10px);
+        animation: fadeUp 0.6s ease;
+    }
+
+       .nav-item {
+        position: relative;
+        width: 70px;
+        height: 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #888;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+        .nav-item.active {
+            color: #25D366;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item .nav-icon {
+        width: 26px;
+        height: 26px;
+        transition: transform 0.35s ease, opacity 0.3s ease;
+    }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            width: 100%;
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            opacity: 0.4;
+            margin-bottom: 16px;
+        }
+
+        .empty-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .empty-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .add-first-btn {
+            padding: 12px 24px;
+            background: #25D366;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-first-btn:hover {
+            background: #1ea952;
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .hot-badge {
+            background: #ff6b00 !important;
+            color: white !important;
+        }
+
+        .popular-badge {
+            background: #e4405f !important;
+            color: white !important;
+        }
+
+        .admin-badge {
+            background: #3498db !important;
+            color: white !important;
+        }
+
+        @media (max-width: 480px) {
+            .place-card {
+                min-width: 140px;
+            }
+            
+            .banner {
+                height: 120px;
+                font-size: 16px;
+            }
+            
+            .section-title {
+                font-size: 16px;
+            }
+            
+            .filter-btn {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+            
+            .filter-sidebar {
+                width: 100px;
+            }
+            
+            .filter-sidebar li {
+                padding: 14px 8px;
+                font-size: 13px;
+            }
+            
+            .search-button {
+                padding: 6px 12px;
+                font-size: 12px;
+                right: 15px;
+            }
+        }
+        
+
+        .recommend-card {
+            min-width: 150px;
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .rec-image {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .rec-name {
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .recommend-carousel {
+    position: relative;
+    width: 100%;
+    height: 260px;
+    overflow: hidden;
+    border-radius: 16px;
+    margin-top: 20px;
+        }
+
+        .carousel-track {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s ease;
+        }
+
+        .carousel-item {
+            min-width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .carousel-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.75);
+        }
+
+        /* Overlay content */
+        .carousel-info {
+            position: absolute;
+            bottom: 20px;
+            left: 25px;
+            color: white;
+        }
+
+        .carousel-info h2 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .carousel-rating {
+            margin-top: 6px;
+            font-size: 16px;
+            background: rgba(0,0,0,0.5);
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+
+        /* Buttons kiri kanan */
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 32px;
+            color: white;
+            background: rgba(0,0,0,0.45);
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 10;
+            user-select: none;
+            transition: 0.2s;
+        }
+
+        .carousel-arrow:hover {
+            background: rgba(0,0,0,0.65);
+        }
+
+        .carousel-arrow.left {
+            left: 10px;
+        }
+
+        .carousel-arrow.right {
+            right: 10px;
+        }
+
+        /* === FIX: Horizontal scroll for card list === */
+    .horizontal-scroll-container {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        padding: 12px 0;
+        scrollbar-width: thin;
+    }
+
+    .horizontal-scroll-container::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .horizontal-scroll-container::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 4px;
+    }
+
+    .cards-wrapper {
+        display: inline-flex;
+        gap: 16px;
+        padding: 0 12px;
+    }
+
+    .cards-wrapper .place-card {
+        flex: 0 0 auto; /* biar tidak wrap ke bawah */
+        width: 160px;   /* ukuran card */
+    }
+
+    /* KEYFRAMES */
+    @keyframes fadeUp {
+        0% { opacity: 0; transform: translate(-50%, 20px); }
+        100% { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    @keyframes bounce {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-26px); }
+        100% { transform: translateY(-22px); }
+    }
+
+    @keyframes pop {
+        0% { transform: scale(0.5); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    .nav-item.active .nav-icon {
+        transform: scale(1.25) rotate(3deg);
+        filter: brightness(1.2);
+    }
+
+    /* TEKS */
+    .nav-item span {
+        margin-top: 4px;
+        font-size: 12px;
+        opacity: 0;
+        transition: 0.25s ease;
+    }
+
+    .nav-item.active span {
+        opacity: 1;
+        transform: translateY(2px);
+    }
+
+    .place-tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+    }
+
+
+    </style>
+</head>
+<body>
+     <!-- Header Section -->
+    <div class="header">
+        <div class="welcome-text">Selamat datang,</div>
+        <div class="username" th:text="${user.username} ?: 'Pengguna'">Pengguna</div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+        <img src="/icons/search.png" class="search-icon-img" id="searchIcon" alt="Search">
+        
+        <input id="searchInput" class="search-input" type="text" placeholder="Cari tempat makan..." />
+        
+        <button class="search-button" onclick="performSearch()">Cari</button>
+    </div>
+
+    <div class="filter-section">
+        <div class="filter-row">
+            <button class="filter-btn" onclick="openAdvancedFilter()">
+                <img src="/icons/filter.png" class="filter-icon-img" alt="Filter">
+                Filter
+            </button>
+        </div>
+    </div>
+
+    <!-- === ADVANCED FILTER SIDEBAR === -->
+    <div id="advancedFilterPopup" class="filter-advanced-popup">
+        <div class="filter-advanced-container">
+            <div class="filter-advanced-header">
+                <h2>Filter Lanjutan</h2>
+                <button class="close-advanced-filter" onclick="closeAdvancedFilter()">×</button>
+            </div>
+            
+            <div class="filter-advanced-body">
+                <div class="filter-sidebar">
+                    <ul>
+                        <li class="active" onclick="showFilterSection('sort')">Jenis Masakan</li>
+                        <li onclick="showFilterSection('cuisine')">Asal Masakan</li>
+                        <li onclick="showFilterSection('payment')">Jenis Pembayaran</li>
+                        <li onclick="showFilterSection('other')">Waktu Operasional</li>
+                        <li onclick="showFilterSection('harga')">Range Harga</li>
+                    </ul>
+                </div>
+                
+                <div class="filter-content">
+                    <!-- Sort Section -->
+                    <div id="sortSection" class="filter-content-section active">
+                        <h3>Jenis Masakan</h3>
+                        
+                       <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Nasi Goreng">
+        <span>Nasi Goreng</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Nasi Uduk">
+        <span>Nasi Uduk</span>
+    </label>
+    
+    <!-- Makanan Ringan/Kudapan -->
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Batagor">
+        <span>Batagor</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Martabak Manis">
+        <span>Martabak Manis</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Martabak Telur">
+        <span>Martabak Telur</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Roti Bakar">
+        <span>Roti Bakar</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Pisang Bakar">
+        <span>Pisang Bakar</span>
+    </label>
+    
+    <!-- Makanan Khas Sunda/Jawa Barat -->
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Cireng">
+        <span>Cireng</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Cilok">
+        <span> Cilok</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Cimol">
+        <span>Cimol</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Cuanki">
+        <span>Cuanki</span>
+    </label>
+    
+    <!-- Mie/Makanan Berkuah -->
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Mie Ayam">
+        <span>Mie Ayam</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Mie Yamin">
+        <span>Mie Yamin</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Mie Tektek">
+        <span>Mie Tektek</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Kwetiau">
+        <span>Kwetiau</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Bihun">
+        <span>Bihun</span>
+    </label>
+    
+    <!-- Makanan Berkuah -->
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Bakso">
+        <span>Bakso</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Mie Kocok Bandung">
+        <span>Mie Kocok </span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Soto Bandung">
+        <span>Soto Bandung</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Seblak Ceker">
+        <span>Seblak Ceker</span>
+    </label>
+    
+    <!-- Ayam -->
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Ayam Geprek">
+        <span>Ayam Geprek</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Ayam Goreng">
+        <span>Ayam Goreng</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Ayam Penyet">
+        <span>Ayam Penyet</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Ayam Bakar">
+        <span>Ayam Bakar</span>
+    </label>
+    
+    <!-- Makanan Berat Lainnya -->
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Rawon">
+        <span>Rawon</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Soto Ayam">
+        <span>Soto Ayam</span>
+    </label>
+    
+    <!-- Ikan -->
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Pecel Lele">
+        <span>Pecel Lele</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Ikan Goreng">
+        <span>Ikan Goreng</span>
+    </label>
+    
+    <label class="checkbox-item">
+        <input type="checkbox" name="masakan" value="Ikan Bakar">
+        <span>Ikan Bakar</span>
+    </label>
+                    </div>
+
+                    <!-- Cuisine Section -->
+                    <div id="cuisineSection" class="filter-content-section">
+                        <h3>Asal Masakan</h3>
+                        
+                        <!-- Masakan Indonesia -->
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="jawa">
+                            <span>Jawa</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="sunda">
+                            <span>Sunda</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="padang">
+                            <span>Padang</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="aceh">
+                            <span>Aceh</span>
+                        </label>
+                        
+                        <!-- TAMBAHAN: Masakan Daerah Indonesia lainnya -->
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="palembang">
+                            <span>Palembang</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="madura">
+                            <span>Madura</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="riau">
+                            <span>Riau</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="banjar">
+                            <span>Banjar</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="betawi">
+                            <span>Betawi</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="makassar">
+                            <span>Makassar</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="manado">
+                            <span>Manado</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="bali">
+                            <span>Bali</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="ntt">
+                            <span>Nusa Tenggara </span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="papua">
+                            <span>Papua</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="maluku">
+                            <span>Maluku</span>
+                        </label>
+                        
+                        <!-- Masakan Asia -->
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="chinese">
+                            <span>Chinese</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="korea">
+                            <span>Korea</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="jepang">
+                            <span>Jepang</span>
+                        </label>
+                        
+                        <!-- Masakan Barat -->
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="western">
+                            <span>Western</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="cuisine" value="italia">
+                            <span>Italia</span>
+                        </label>
+                        
+                    </div>
+
+                    <!-- Payment Section -->
+                    <div id="paymentSection" class="filter-content-section">
+                        <h3>Jenis Pembayaran</h3>
+
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="payment" value="cash">
+                            <span>Cash / Tunai</span>
+                        </label>
+
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="payment" value="cashless">
+                            <span>Cashless (QRIS)</span>
+                        </label>
+
+                        
+                    </div>
+                        <div id="hargaSection" class="filter-content-section">
+                        <h3>Range Harga</h3>
+                        
+                        <!-- Filter berdasarkan range harga -->
+                        <label class="checkbox-item">
+                            <input type="radio" name="harga" value="10000">
+                            <span>Rp 10.000</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="radio" name="harga" value="20000">
+                            <span>Rp 20.000</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="radio" name="harga" value="30000">
+                            <span>Rp 30.000 </span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="radio" name="harga" value="50000++">
+                            <span>>Rp 50.000++</span>
+                        </label>
+                        
+                        <!-- Opsi untuk semua harga -->
+                        <label class="checkbox-item">
+                            <input type="radio" name="harga" value="all" checked>
+                            <span>Semua Harga</span>
+                        </label>
+                    </div>
+                    <!-- Other Filters Section -->
+                    <div id="otherSection" class="filter-content-section">
+                        <h3>Waktu Operasional</h3>
+                        
+                        <!-- Filter berdasarkan waktu operasional -->
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="operasional" value="Pagi">
+                            <span>Pagi (06:00 - 11:00)</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="operasional" value="Siang">
+                            <span>Siang (11:00 - 15:00)</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="operasional" value="Sore">
+                            <span>Sore (15:00 - 18:00)</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="operasional" value="Malam">
+                            <span>Malam (18:00 - 24:00)</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="operasional" value="24 Jam">
+                            <span>24 Jam</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="operasional" value="Buka Setiap Hari">
+                            <span>Buka Setiap Hari</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="operasional" value="Weekday">
+                            <span>Weekday (Senin-Jumat)</span>
+                        </label>
+                        
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="operasional" value="Weekend">
+                            <span>Weekend (Sabtu-Minggu)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="filter-apply-btn" onclick="applyAdvancedFilters()">
+                Terapkan Filter
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+   <div class="quick-actions">
+    <div class="action-btn" onclick="goTo('favorites')">
+        <div style="font-size: 16px;">❤️</div>
+        <div style="font-size: 11px; margin-top: 4px;">Favorit</div>
+    </div>
+    <div class="action-btn" onclick="goTo('history')">
+        <div style="font-size: 16px;">🕘</div>
+        <div style="font-size: 11px; margin-top: 4px;">Riwayat</div>
+    </div>
+</div>  <!-- 🔥 Tambahkan penutup ini -->
+
+
+    
+    <h3>Rekomendasi Untuk Anda 👇</h3>
+
+<div class="recommend-carousel">
+
+    <div class="carousel-arrow left" onclick="prevSlide()">&#10094;</div>
+    <div class="carousel-arrow right" onclick="nextSlide()">&#10095;</div>
+
+    <div class="carousel-track">
+
+        <div class="carousel-item" th:each="w : ${rekomendasi}">
+            <img th:src="@{'/uploads/' + ${w.imageName}}" class="carousel-image">
+
+            <!-- overlay text -->
+            <div class="carousel-info">
+                <h2 th:text="${w.nama}"></h2>
+
+                <div class="carousel-rating">
+                    ⭐ <span th:text="${w.rating} ?: '0'"></span>/5
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+     <!-- ===============================================
+         SECTION 1: SEMUA TEMPAT MAKAN
+         =============================================== -->
+    <div class="section-container">
+        <div class="section-header">
+            <div class="section-title">Semua Tempat Makan</div>
+        </div>
+        <div class="section-subtitle">Tempat makan yang sudah terverifikasi</div>
+        
+        <!-- SCROLL HORIZONTAL CONTAINER -->
+        <div class="horizontal-scroll-container">
+            <div class="cards-wrapper">
+                <!-- Data semua warung yang approved dari database -->
+                <div class="place-card" th:each="warung : ${allWarungs}" 
+                     th:onclick="|viewWarungDetail(${warung.id})|">
+                    
+                    <img th:src="@{'/uploads/' + ${warung.imageName}}" 
+                         class="place-image" 
+                         alt="Restaurant Image"
+                         onerror="this.onerror=null; this.src='/icons/restaurant-placeholder.jpg'">
+                    
+                    <div class="place-info">
+                        <div class="place-name" th:text="${warung.nama} ?: 'Nama Tidak Tersedia'">Nama Restaurant</div>
+                        <div class="place-address" th:text="${warung.alamat} ?: 'Alamat tidak tersedia'">Alamat restaurant</div>
+                        
+                        <!-- Rating rata-rata dari review -->
+                        <div class="place-rating-container">
+    <div class="place-rating">
+        <span>⭐</span>
+        <!-- Tampilkan rating average dengan format 1 desimal -->
+        <span th:if="${warung.ratingAverage != null}" 
+              th:text="${#numbers.formatDecimal(warung.ratingAverage, 1, 1)}">4.5</span>
+        <span th:if="${warung.ratingAverage == null}" 
+              th:text="${warung.rating}">5</span>
+        <span>/5</span>
+    </div>
+    <!-- Jumlah review (termasuk rating dari form tambah warung) -->
+    <div class="place-rating-count" 
+         th:text="'(' + (${warung.reviewCount != null} ? ${warung.reviewCount} : '1') + ' ulasan)'">
+        (1 ulasan)
+    </div>
+</div>
+                        
+                        <div class="place-tags-container">
+
+                            <!-- Top Rated -->
+                            <div class="place-tag hot-badge"
+                                th:if="${(warung.ratingAverage != null and warung.ratingAverage >= 4) 
+                                or (warung.ratingAverage == null and warung.rating >= 4)}">
+                                🔥 Top Rated
+                            </div>
+
+                            <!-- Terpopuler -->
+                            <div class="place-tag popular-badge" 
+                                th:if="${warung.reviewCount != null and warung.reviewCount >= 10}">
+                                🔥 Terpopuler
+                            </div>
+
+                            <!-- Jenis Masakan -->
+                            <div class="place-tag cuisine-badge" th:if="${warung.tag != null}">
+                                <span th:text="${warung.tag}"></span>
+                            </div>
+
+                            <!-- CASH ONLY -->
+                            <div class="place-tag payment-cash-badge"
+                                th:if="${warung.tag != null and warung.tag.toLowerCase().contains('cash')}">
+                                💵 Cash Only
+                            </div>
+
+                            <!-- CASHLESS -->
+                            <div class="place-tag payment-cashless-badge"
+                                th:if="${warung.tag != null and warung.tag.toLowerCase().contains('cashless')}">
+                                💳 Cashless
+                            </div>
+
+                            <!-- VERIFIED -->
+                            <div class="place-tag admin-badge" 
+                                th:if="${warung.status == 'approved'}">✓ Verified</div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Empty State untuk semua warung -->
+                <div th:if="${#lists.isEmpty(allWarungs)}" class="empty-state-container">
+                    <div class="empty-state">
+                        <img src="/icons/restaurant-placeholder.jpg" class="empty-icon" alt="No restaurants" />
+                        <div class="empty-title">Belum ada tempat makan</div>
+                        <div class="empty-subtitle">Jadilah yang pertama menambahkan tempat makan!</div>
+                        <button class="add-first-btn" onclick="goTo('tambahwarung')">+ Tambah Tempat Makan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+    <!-- ===============================================
+         SECTION 3: SEDANG POPULER
+         =============================================== -->
+    <div class="section-container" th:if="${not #lists.isEmpty(warungsTerpopuler)}">
+        <div class="section-header">
+            <div class="section-title">Sedang Populer</div>
+        </div>
+        <div class="section-subtitle">Tempat makan dengan ulasan terbanyak</div>
+
+        <div class="horizontal-scroll-container">
+            <div class="cards-wrapper">
+                <!-- Data warung terpopuler -->
+                <div class="place-card" th:each="warung : ${warungsTerpopuler}" 
+                     th:onclick="|viewWarungDetail(${warung.id})|">
+                    
+                    <img th:src="@{'/uploads/' + ${warung.imageName}}" 
+                         class="place-image" 
+                         alt="Restaurant Image"
+                         onerror="this.onerror=null; this.src='/icons/restaurant-placeholder.jpg'">
+                    
+                    <div class="place-info">
+                        <div class="place-name" th:text="${warung.nama} ?: 'Nama Tidak Tersedia'">Nama Restaurant</div>
+                        <div class="place-address" th:text="${warung.alamat} ?: 'Alamat tidak tersedia'">Alamat restaurant</div>
+                        
+                        <div class="place-rating-container">
+                            <div class="place-rating">
+                                <span>⭐</span>
+                                <span th:text="${warung.ratingAverage != null} ? 
+                                    ${#numbers.formatDecimal(warung.ratingAverage, 1, 1)} : 
+                                    (${warung.rating != null} ? ${warung.rating} : '0')">4</span>
+                                <span>/5</span>
+                            </div>
+                            <div class="place-rating-count" 
+                                 th:text="'(' + (${warung.reviewCount != null} ? ${warung.reviewCount} : '0') + ' ulasan)'">
+                                (0 ulasan)
+                            </div>
+                        </div>
+                        
+                        <div class="place-tag popular-badge">🔥 Terpopuler</div>
+                        <div class="place-tag admin-badge" th:if="${warung.status == 'approved'}">✓ Verified</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-container" th:if="${not #lists.isEmpty(warungsRatingTertinggi)}">
+    <div class="section-header">
+        <div class="section-title">⭐ Rating Tertinggi</div>
+    </div>
+    <div class="section-subtitle">Warung dengan rating terbaik berdasarkan ulasan</div>
+
+    <div class="horizontal-scroll-container">
+        <div class="cards-wrapper">
+            <!-- Data warung rating tertinggi -->
+            <div class="place-card" th:each="warung : ${warungsRatingTertinggi}" 
+                 th:onclick="|viewWarungDetail(${warung.id})|">
+                
+                <img th:src="@{'/uploads/' + ${warung.imageName}}" 
+                     class="place-image" 
+                     alt="Restaurant Image"
+                     onerror="this.onerror=null; this.src='/icons/restaurant-placeholder.jpg'">
+                
+                <div class="place-info">
+                    <div class="place-name" th:text="${warung.nama} ?: 'Nama Tidak Tersedia'">Nama Restaurant</div>
+                    <div class="place-address" th:text="${warung.alamat} ?: 'Alamat tidak tersedia'">Alamat restaurant</div>
+                    
+                    <div class="place-rating-container">
+                        <div class="place-rating">
+                            <span>⭐</span>
+                            <span th:if="${warung.ratingAverage != null}" 
+                                  th:text="${#numbers.formatDecimal(warung.ratingAverage, 1, 1)}">4.5</span>
+                            <span th:if="${warung.ratingAverage == null}" 
+                                  th:text="${warung.rating}">5</span>
+                            <span>/5</span>
+                        </div>
+                        <div class="place-rating-count" 
+                             th:text="'(' + (${warung.reviewCount != null} ? ${warung.reviewCount} : '1') + ' ulasan)'">
+                            (1 ulasan)
+                        </div>
+                    </div>
+                    
+                    <!-- Badge khusus untuk rating tertinggi -->
+                    <div class="place-tag" style="background: #ff9500; color: white;">
+                        ⭐ Top Rating
+                    </div>
+                    
+                    <!-- Badge jika rating >= 4.5 -->
+                    <div class="place-tag hot-badge" 
+                         th:if="${(warung.ratingAverage != null and warung.ratingAverage >= 4.5) 
+                               or (warung.ratingAverage == null and warung.rating >= 4.5)}">
+                        🔥 Excellent
+                    </div>
+                    
+                    <div class="place-tag admin-badge" th:if="${warung.status == 'approved'}">✓ Verified</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <a href="/dashboard" class="nav-item center-btn">
+        <img src="/icons/home.png" alt="Home" />
+      </a>
+
+      <a href="/tambahwarung" class="nav-item">
+        <img src="/icons/add.png" alt="Tambah" />
+      </a>
+
+      <a href="/profile" class="nav-item">
+        <img src="/icons/user.png" alt="User" />
+      </a>
+    </div>
+
+    <script>
+
+
+        // === LOGIKA HILANGKAN ICON SAAT MENGETIK ===
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const icon = document.getElementById('searchIcon');
+            
+            // Jika ada teks (panjang > 0), opacity jadi 0 (hilang)
+            if (this.value.length > 0) {
+                icon.style.opacity = '0';
+            } else {
+                // Jika kosong, kembalikan opacity (muncul lagi)
+                icon.style.opacity = '0.5';
+            }
+        });
+        // Simple Filter functionality
+        function setFilter(type) {
+            window.location.href = '/dashboard?filter=' + type;
+        }
+
+        // Navigation functionality
+        function goTo(page) {
+            window.location.href = '/' + page;
+        }
+
+        // View warung detail
+        function viewWarungDetail(warungId) {
+            window.location.href = '/warung/detail/' + warungId;
+        }
+
+        // ========== ADVANCED FILTER FUNCTIONS ==========
+        function openAdvancedFilter() {
+            document.getElementById('advancedFilterPopup').style.display = 'flex';
+        }
+
+        function closeAdvancedFilter() {
+            document.getElementById('advancedFilterPopup').style.display = 'none';
+        }
+
+        function showFilterSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.filter-content-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId + 'Section').classList.add('active');
+            
+            // Update sidebar active state
+            const sidebarItems = document.querySelectorAll('.filter-sidebar li');
+            sidebarItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.textContent.trim() === getSectionName(sectionId)) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+         function getSectionName(sectionId) {
+            const sectionNames = {
+                'sort': 'Jenis Masakan',
+                'cuisine': 'Asal Masakan',
+                'payment': 'Jenis Pembayaran',
+                'other': 'Waktu Operasional'
+            };
+            return sectionNames[sectionId] || sectionId;
+        }
+
+        // GANTI function applyAdvancedFilters() dengan ini:
+        // GANTI function applyAdvancedFilters() dengan ini:
+function applyAdvancedFilters() {
+    // Collect all filter values
+    const filters = {
+        masakan: Array.from(document.querySelectorAll('input[name="masakan"]:checked')).map(cb => cb.value),
+        cuisine: Array.from(document.querySelectorAll('input[name="cuisine"]:checked')).map(cb => cb.value),
+        payment: Array.from(document.querySelectorAll('input[name="payment"]:checked')).map(cb => cb.value),
+        operasional: Array.from(document.querySelectorAll('input[name="operasional"]:checked')).map(cb => cb.value),
+        harga: document.querySelector('input[name="harga"]:checked')?.value || 'all' // TAMBAH INI
+    };
+    
+    console.log('Applied filters:', filters);
+    
+    // Build query string
+    let queryParams = [];
+    
+    // Jenis Masakan
+    if (filters.masakan.length > 0) {
+        queryParams.push(`masakan=${encodeURIComponent(filters.masakan.join(','))}`);
+    }
+    
+    // Cuisine/Asal Masakan
+    if (filters.cuisine.length > 0) {
+        queryParams.push(`cuisine=${encodeURIComponent(filters.cuisine.join(','))}`);
+    }
+    
+    // Payment
+    if (filters.payment.length > 0) {
+        queryParams.push(`payment=${encodeURIComponent(filters.payment.join(','))}`);
+    }
+    
+    // Waktu Operasional
+    if (filters.operasional.length > 0) {
+        queryParams.push(`features=${encodeURIComponent(filters.operasional.join(','))}`);
+    }
+    
+    // Harga (jika bukan "all")
+    if (filters.harga && filters.harga !== 'all') {
+        queryParams.push(`harga=${encodeURIComponent(filters.harga)}`);
+    }
+    
+    // Redirect to dashboard dengan filter
+    const queryString = queryParams.length > 0 ? '?' + queryParams.join('&') : '';
+    
+    window.location.href = '/dashboard' + queryString;
+    
+    // Close popup
+    closeAdvancedFilter();
+}
+
+        // Tambah fungsi untuk search
+        function performSearch() {
+            const keyword = document.getElementById('searchInput').value.trim();
+            if (keyword) {
+                window.location.href = '/search?q=' + encodeURIComponent(keyword);
+            }
+        }
+
+        // Update event listener untuk search
+        document.getElementById('searchInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Close advanced filter when clicking outside
+        document.getElementById('advancedFilterPopup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAdvancedFilter();
+            }
+        });
+
+        // ========== HOVER EFFECTS & INITIALIZATION ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enhanced card interactions
+            const cards = document.querySelectorAll('.place-card');
+            cards.forEach(card => {
+                card.style.cursor = 'pointer';
+                
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-4px)';
+                    this.style.boxShadow = '0 6px 20px rgba(0,0,0,0.12)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+                });
+            });
+
+            // Auto-hide address if too long
+            const addresses = document.querySelectorAll('.place-address');
+            addresses.forEach(address => {
+                if (address.textContent.length > 50) {
+                    address.textContent = address.textContent.substring(0, 47) + '...';
+                }
+            });
+
+            // Log untuk debugging
+            console.log('Horizontal scroll containers:', document.querySelectorAll('.horizontal-scroll-container').length);
+            console.log('Cards wrappers:', document.querySelectorAll('.cards-wrapper').length);
+            console.log('Place cards:', document.querySelectorAll('.place-card').length);
+            
+            // TEST SCROLL FUNCTIONALITY
+            const scrollContainers = document.querySelectorAll('.horizontal-scroll-container');
+            console.log('Scroll containers found:', scrollContainers.length);
+            
+            scrollContainers.forEach(container => {
+                console.log('Container width:', container.offsetWidth);
+                console.log('Wrapper width:', container.querySelector('.cards-wrapper').scrollWidth);
+                
+                // Test if scroll is needed
+                if (container.querySelector('.cards-wrapper').scrollWidth > container.offsetWidth) {
+                    console.log('✓ Scroll horizontal diperlukan untuk container ini');
+                }
+            });
+        });
+
+
+        // Simple loading state
+        function showLoading() {
+            const container = document.getElementById('allWarungsContainer');
+            container.innerHTML = '<div class="loading">Memuat data...</div>';
+        }
+
+    
+        let currentSlide = 0;
+
+        function showSlide(index) {
+            const track = document.querySelector(".carousel-track");
+            const total = document.querySelectorAll(".carousel-item").length;
+
+            if (index >= total) currentSlide = 0;
+            else if (index < 0) currentSlide = total - 1;
+            else currentSlide = index;
+
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        /* Auto-slide 5 detik */
+        setInterval(() => {
+            nextSlide();
+        }, 5000);
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Detail Warung</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f4f7;
+            margin: 0;
+            padding: 25px;
+        }
+
+        .container { max-width: 900px; margin: auto; }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .back-btn {
+            padding: 8px 14px;
+            background: #d0d7de;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #111;
+            font-weight: bold;
+        }
+
+        .title { font-size: 24px; margin: 0; }
+
+        .image-box {
+            width: 100%;
+            height: 280px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            background: #eee;
+        }
+
+        .image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .info-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .label { font-size: 14px; color: #475569; }
+        .value { font-size: 16px; font-weight: bold; margin-top: 4px; }
+
+        .rating-stars { color: #f5b50a; font-size: 20px; margin-top: 5px; }
+
+        .actions { margin-top: 20px; display: flex; gap: 10px; }
+        .btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+        }
+
+        .approve { background: #22c55e; }
+        .reject { background: #ef4444; }
+
+        /* Reject Box */
+        .reject-box {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #b91c1c;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <a href="/admin/verifikasi" class="back-btn">← Back</a>
+        <h1 class="title" th:text="${warung.nama}">Nama Warung</h1>
+    </div>
+
+    <!-- 🔥 Tampilkan alasan reject jika status = rejected -->
+    <div th:if="${warung.status == 'rejected'}" class="reject-box">
+        <strong>Warung Ditolak</strong><br>
+        Alasan: <span th:text="${warung.rejectReason}"></span>
+    </div>
+
+    <!-- CARD UTAMA -->
+    <div class="card">
+
+        <div class="image-box">
+            <img th:src="@{'/uploads/' + ${warung.imageName}}" alt="Foto Warung">
+        </div>
+
+        <div class="info-grid">
+
+            <div class="info-item">
+                <div class="label">Alamat:</div>
+                <div class="value" th:text="${warung.alamat}"></div>
+            </div>
+
+            <div class="info-item">
+                <div class="label">Telepon:</div>
+                <div class="value" th:text="${warung.telepon}"></div>
+            </div>
+
+            <div class="info-item">
+                <div class="label">Rating:</div>
+                <div class="rating-stars">
+                    <span th:each="i : ${#numbers.sequence(1, warung.rating > 5 ? 5 : warung.rating)}">★</span>
+                    <span th:each="i : ${#numbers.sequence((warung.rating > 5 ? 5 : warung.rating) + 1, 5)}" style="color:#d1d5db">★</span>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="label">Tag (Kategori):</div>
+                <div class="value" th:text="${warung.tag}"></div>
+            </div>
+
+            <div class="info-item" style="grid-column: span 2;">
+                <div class="label">Deskripsi:</div>
+                <div class="value" th:text="${warung.deskripsi}"></div>
+            </div>
+
+            <div class="info-item">
+                <div class="label">Latitude:</div>
+                <div class="value" th:text="${warung.latitude}"></div>
+            </div>
+
+            <div class="info-item">
+                <div class="label">Longitude:</div>
+                <div class="value" th:text="${warung.longitude}"></div>
+            </div>
+        </div>
+
+    </div> <!-- end card -->
+
+    <!-- MAP SECTION (CARD TERPISAH) -->
+    <div class="card" style="padding:18px;">
+        <h3 style="margin:0 0 8px 0">Lokasi Warung</h3>
+
+        <!-- IFRAME MAP -->
+        <div style="width: 100%; height: 260px; border-radius: 12px; overflow: hidden; border: 1px solid #dce3eb; margin-top: 10px;">
+
+            <iframe
+                th:src="@{'https://www.google.com/maps?q=' + ${warung.latitude} + ',' + ${warung.longitude} + '&hl=id&z=15&output=embed'}"
+                width="100%"
+                height="100%"
+                style="border:0;"
+                allowfullscreen
+                loading="lazy">
+            </iframe>
+
+        </div>
+
+        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+
+            <a th:href="@{'https://www.google.com/maps/dir/?api=1&destination=' + ${warung.latitude} + ',' + ${warung.longitude}}"
+               class="btn"
+               style="background:#2563eb;"
+               target="_blank">
+               Arahkan di Google Maps
+            </a>
+
+            <button type="button"
+                class="btn"
+                onclick="copyAlamat(this.dataset.alamat)"
+                th:data-alamat="${warung.alamat}"
+                style="background:#9ca3af;">
+            Salin Alamat
+        </button>
+
+
+
+        </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="actions">
+        <a th:href="@{'/admin/approve/' + ${warung.id}}" class="btn approve">Approve</a>
+        <a th:href="@{'/admin/reject/' + ${warung.id}}" class="btn reject">Reject</a>
+    </div>
+
+</div>
+
+</body>
+<script>
+function copyAlamat(text) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text)
+            .then(() => alert("Alamat disalin!"))
+            .catch(() => fallbackCopy(text));
+    } else {
+        fallbackCopy(text);
+    }
+}
+
+function fallbackCopy(text) {
+    const temp = document.createElement("input");
+    temp.value = text;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand("copy");
+    temp.remove();
+    alert("Alamat disalin!");
+}
+</script>
+
+</html>

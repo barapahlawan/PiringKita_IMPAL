@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | PiringKita</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        /* Form Section */
+        .form-section {
+            flex: 1;
+            padding: 60px 50px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 500px;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .app-title {
+            color: #25D366;
+            font-size: 28px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .page-subtitle {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        /* Error Box dari Desain 1 */
+        .error-box {
+            background: #ffdddd;
+            border-left: 4px solid #ff4444;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            color: #b30000;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .success-box {
+            background: #ddffdd;
+            border-left: 4px solid #44ff44;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            color: #006600;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #25D366;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+        }
+
+        .form-input.error {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .form-input.success {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+        .phone-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .country-code {
+            flex: 0 0 80px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            background: #fafbfc;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .phone-number {
+            flex: 1;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .error-message::before {
+            content: '⚠';
+            font-size: 10px;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-size: 12px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .success-message::before {
+            content: '✓';
+            font-size: 10px;
+        }
+
+        .hint-text {
+            color: #6c757d;
+            font-size: 11px;
+            margin-top: 3px;
+            font-style: italic;
+        }
+
+        .register-button {
+            width: 100%;
+            padding: 16px;
+            background: #25D366;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        .register-button:hover:not(:disabled) {
+            background: #1ea952;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+        }
+
+        .register-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .login-link a {
+            color: #25D366;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Image Section */
+        .image-section {
+            flex: 1.2;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+                        url('/icons/register.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+
+        .content-overlay {
+            color: white;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .content-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .content-subtitle {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            .form-section {
+                max-width: none;
+                padding: 40px 30px;
+            }
+            .image-section {
+                padding: 40px 30px;
+                min-height: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-section {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Form Section -->
+    <section class="form-section">
+        <div class="logo-container">
+            <h1 class="app-title">PiringKita!</h1>
+            <h2 class="page-subtitle">Buat Akun</h2>
+        </div>
+        
+        <p class="subtitle">Buat akun baru untuk mulai menjelajahi restoran terbaik di sekitar Anda</p>
+
+        <!-- Error/Success Box dari Desain 1 -->
+        <div th:if="${error}" class="error-box">
+            <p th:text="${error}"></p>
+        </div>
+        <div th:if="${message}" class="success-box">
+            <p th:text="${message}"></p>
+        </div>
+
+        <form th:action="@{/register}" method="post" id="registerForm">
+            <!-- Email -->
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" 
+                       name="email" 
+                       class="form-input" 
+                       th:classappend="${emailExistsError} ? 'error' : ''"
+                       th:value="${user?.email}"
+                       placeholder="email@domain.com" 
+                       id="email"
+                       required>
+                <div class="hint-text">Masukkan alamat email yang valid</div>
+                <div class="error-message" id="emailError" style="display: none;">
+                    Format email tidak valid
+                </div>
+                <div th:if="${emailExistsError}" class="error-message" style="display: flex;">
+                    <span th:text="${emailExistsError}"></span>
+                </div>
+            </div>
+
+            <!-- Username -->
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" 
+                       name="username" 
+                       class="form-input" 
+                       placeholder="Username" 
+                       id="username"
+                       required
+                       minlength="3"
+                       maxlength="20">
+                <div class="hint-text">Minimal 3 karakter, maksimal 20 karakter</div>
+                <div class="error-message" id="usernameError" style="display: none;">
+                    Username harus 3-20 karakter
+                </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="form-group">
+                <label class="form-label">Nomor Telepon</label>
+                <div class="phone-input">
+                    <div class="country-code">
+                        <span>🇮🇩</span>
+                        <span>+62</span>
+                    </div>
+                    <input type="tel" 
+                           name="phone" 
+                           class="form-input phone-number" 
+                           placeholder="81234567890" 
+                           id="phone"
+                           required
+                           pattern="[0-9]{10,13}"
+                           maxlength="13">
+                </div>
+                <div class="hint-text">Masukkan 10-13 digit nomor telepon</div>
+                <div class="error-message" id="phoneError" style="display: none;">
+                    Nomor telepon harus 10-13 digit angka
+                </div>
+                <div class="success-message" id="phoneSuccess" style="display: none;">
+                    Format nomor telepon valid
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" 
+                       name="password" 
+                       class="form-input" 
+                       placeholder="Enter Password" 
+                       id="password"
+                       required
+                       minlength="6">
+                <div class="hint-text">Minimal 6 karakter</div>
+                <div class="error-message" id="passwordError" style="display: none;">
+                    Password minimal 6 karakter
+                </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-group">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" 
+                       name="confirmPassword" 
+                       class="form-input" 
+                       placeholder="Confirm Password" 
+                       id="confirmPassword"
+                       required>
+                <div class="error-message" id="confirmPasswordError" style="display: none;">
+                    Password tidak cocok
+                </div>
+                <div class="success-message" id="confirmPasswordSuccess" style="display: none;">
+                    Password cocok
+                </div>
+            </div>
+
+            <button type="submit" class="register-button">Continue</button>
+        </form>
+
+        <div class="login-link">
+            Sudah punya akun? <a th:href="@{/login}">Login di sini</a>
+        </div>
+    </section>
+
+    <!-- Image Section -->
+    <section class="image-section">
+        <div class="content-overlay">
+            <h2 class="content-title">Bergabung Komunitas Pecinta Makanan</h2>
+            <p class="content-subtitle">
+                Bergabunglah dengan komunitas pecinta kuliner. 
+                Temukan tempat makan terbaik, bagikan pengalaman, 
+                dan dapatkan rekomendasi personalized.
+            </p>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.getElementById('email');
+            const phoneInput = document.getElementById('phone');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const usernameInput = document.getElementById('username');
+            
+            const emailError = document.getElementById('emailError');
+            const phoneError = document.getElementById('phoneError');
+            const phoneSuccess = document.getElementById('phoneSuccess');
+            const passwordError = document.getElementById('passwordError');
+            const confirmPasswordError = document.getElementById('confirmPasswordError');
+            const confirmPasswordSuccess = document.getElementById('confirmPasswordSuccess');
+            const usernameError = document.getElementById('usernameError');
+
+            // Validasi email
+            function validateEmail() {
+                const email = emailInput.value.trim();
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const isValid = emailRegex.test(email);
+                
+                if (email && !isValid) {
+                    emailInput.classList.add('error');
+                    emailInput.classList.remove('success');
+                    emailError.style.display = 'flex';
+                    return false;
+                } else if (email && isValid) {
+                    emailInput.classList.remove('error');
+                    emailInput.classList.add('success');
+                    emailError.style.display = 'none';
+                    return true;
+                } else {
+                    emailInput.classList.remove('error', 'success');
+                    emailError.style.display = 'none';
+                    return false;
+                }
+            }
+
+            // Validasi nomor telepon 10-13 digit
+            function validatePhone() {
+                const phone = phoneInput.value.trim();
+                const phoneRegex = /^[0-9]{10,13}$/;
+                const isValid = phoneRegex.test(phone);
+                
+                if (phone && !isValid) {
+                    phoneInput.classList.add('error');
+                    phoneInput.classList.remove('success');
+                    phoneError.style.display = 'flex';
+                    phoneSuccess.style.display = 'none';
+                    return false;
+                } else if (phone && isValid) {
+                    phoneInput.classList.remove('error');
+                    phoneInput.classList.add('success');
+                    phoneError.style.display = 'none';
+                    phoneSuccess.style.display = 'flex';
+                    return true;
+                } else {
+                    phoneInput.classList.remove('error', 'success');
+                    phoneError.style.display = 'none';
+                    phoneSuccess.style.display = 'none';
+                    return false;
+                }
+            }
+
+            // Validasi password minimal 6 karakter
+            function validatePassword() {
+                const password = passwordInput.value;
+                const isValid = password.length >= 6;
+                
+                if (password && !isValid) {
+                    passwordInput.classList.add('error');
+                    passwordInput.classList.remove('success');
+                    passwordError.style.display = 'flex';
+                    return false;
+                } else if (password && isValid) {
+                    passwordInput.classList.remove('error');
+                    passwordInput.classList.add('success');
+                    passwordError.style.display = 'none';
+                    return true;
+                } else {
+                    passwordInput.classList.remove('error', 'success');
+                    passwordError.style.display = 'none';
+                    return false;
+                }
+            }
+
+            // Validasi konfirmasi password
+            function validateConfirmPassword() {
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+                const isValid = password === confirmPassword && password.length >= 6;
+                
+                if (confirmPassword && !isValid) {
+                    confirmPasswordInput.classList.add('error');
+                    confirmPasswordInput.classList.remove('success');
+                    confirmPasswordError.style.display = 'flex';
+                    confirmPasswordSuccess.style.display = 'none';
+                    return false;
+                } else if (confirmPassword && isValid) {
+                    confirmPasswordInput.classList.remove('error');
+                    confirmPasswordInput.classList.add('success');
+                    confirmPasswordError.style.display = 'none';
+                    confirmPasswordSuccess.style.display = 'flex';
+                    return true;
+                } else {
+                    confirmPasswordInput.classList.remove('error', 'success');
+                    confirmPasswordError.style.display = 'none';
+                    confirmPasswordSuccess.style.display = 'none';
+                    return false;
+                }
+            }
+
+            // Validasi username
+            function validateUsername() {
+                const username = usernameInput.value.trim();
+                const isValid = username.length >= 3 && username.length <= 20;
+                
+                if (username && !isValid) {
+                    usernameInput.classList.add('error');
+                    usernameInput.classList.remove('success');
+                    usernameError.style.display = 'flex';
+                    return false;
+                } else if (username && isValid) {
+                    usernameInput.classList.remove('error');
+                    usernameInput.classList.add('success');
+                    usernameError.style.display = 'none';
+                    return true;
+                } else {
+                    usernameInput.classList.remove('error', 'success');
+                    usernameError.style.display = 'none';
+                    return false;
+                }
+            }
+
+            // Event listeners untuk real-time validation
+            emailInput.addEventListener('input', validateEmail);
+            phoneInput.addEventListener('input', validatePhone);
+            passwordInput.addEventListener('input', function() {
+                validatePassword();
+                validateConfirmPassword();
+            });
+            confirmPasswordInput.addEventListener('input', validateConfirmPassword);
+            usernameInput.addEventListener('input', validateUsername);
+
+            // Auto format phone input (hanya angka)
+            phoneInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+            // Auto format username (tanpa spasi)
+            usernameInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/\s/g, '');
+            });
+
+            // Validasi semua field sebelum submit
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
+                const isEmailValid = validateEmail();
+                const isPhoneValid = validatePhone();
+                const isPasswordValid = validatePassword();
+                const isConfirmPasswordValid = validateConfirmPassword();
+                const isUsernameValid = validateUsername();
+                
+                if (!isEmailValid || !isPhoneValid || !isPasswordValid || 
+                    !isConfirmPasswordValid || !isUsernameValid) {
+                    e.preventDefault();
+                    alert('Harap isi semua field dengan format yang benar!');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

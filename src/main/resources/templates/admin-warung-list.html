@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin - Verifikasi Warung</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f7f7f7;
+            padding: 20px;
+        }
+        h2 { margin-bottom: 20px; }
+        table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            border-collapse: collapse;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+        th {
+            background: #fafafa;
+        }
+        img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+        .btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: white;
+            font-size: 14px;
+        }
+        .approve { background: #3cb371; }
+        .reject { background: #d9534f; }
+        .detail { background: #0275d8; }
+        .label {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: white;
+        }
+        .pending { background: #f0ad4e; }
+        .approved { background: #5cb85c; }
+        .rejected { background: #d9534f; }
+
+        .filter-bar {
+            margin-bottom: 15px;
+        }
+        select {
+            padding: 8px;
+            border-radius: 6px;
+        }
+        .back-btn {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 18px;
+        background-color: #0275d8;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: 0.2s ease-in-out;
+    }
+
+    .back-btn:hover {
+        background-color: #025aa5;
+    }
+    </style>
+</head>
+<a href="/dashboardAdmin" class="back-btn">← Kembali</a>
+<body>
+
+<h2>Panel Admin – Verifikasi Warung</h2>
+
+<!-- NOTIFIKASI -->
+<div th:if="${msg}" 
+     th:text="${msg}" 
+     style="padding:10px; background:#dff0d8; border-radius:6px; margin-bottom:15px;">
+</div>
+
+<!-- FILTER -->
+<div class="filter-bar">
+    <form method="get" action="/admin/verifikasi">
+        <select name="status">
+            <option value="">Semua Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+        </select>
+
+        <select name="sort">
+            <option value="">Sort Default</option>
+            <option value="nama">Nama (A-Z)</option>
+            <option value="date">Tanggal</option>
+        </select>
+
+        <button type="submit">Filter</button>
+    </form>
+</div>
+
+<table>
+    <tr>
+        <th>Foto</th>
+        <th>Nama</th>
+        <th>Alamat</th>
+        <th>Status</th>
+        <th>Aksi</th>
+    </tr>
+
+    <tr th:each="w : ${warungList}">
+        <td><img th:src="@{'/uploads/' + ${w.imageName}}"></td>
+
+        <td th:text="${w.nama}"></td>
+        <td th:text="${w.alamat}"></td>
+
+        <td>
+            <span class="label" 
+                  th:classappend="${w.status} == 'pending' ? 'pending' : 
+                                   (${w.status} == 'approved' ? 'approved' : 'rejected')"
+                  th:text="${w.status}">
+            </span>
+        </td>
+
+        <td>
+            <a th:href="@{'/admin/detail/' + ${w.id}}" class="btn detail">Detail</a>
+
+            <a th:href="@{'/admin/approve/' + ${w.id}}" 
+               class="btn approve"
+               th:if="${w.status == 'pending'}">✔</a>
+
+            <a th:href="@{'/admin/reject/' + ${w.id}}" 
+               class="btn reject"
+               th:if="${w.status == 'pending'}">✖</a>
+        </td>
+    </tr>
+
+</table>
+
+</body>
+</html>

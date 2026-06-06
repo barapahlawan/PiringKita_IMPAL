@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Detail Warung</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f4f7;
+            margin: 0;
+            padding: 25px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .back-btn {
+            padding: 8px 14px;
+            background: #d0d7de;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #111;
+            font-weight: bold;
+        }
+
+        .title { font-size: 24px; margin: 0; }
+
+        .image-box {
+            width: 100%;
+            height: 280px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            background: #eee;
+        }
+
+        .image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .info-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .label { font-size: 14px; color: #475569; }
+        .value { font-size: 16px; font-weight: bold; margin-top: 4px; }
+
+        .rating-stars { color: #f5b50a; font-size: 20px; margin-top: 5px; }
+        .actions { margin-top: 20px; display: flex; gap: 10px; }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* REVIEW CARD */
+        .review-card {
+            border: 1px solid #e5e7eb;
+            padding: 20px;
+            border-radius: 14px;
+            margin-top: 15px;
+            background: #fff;
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e5e7eb;
+        }
+
+        .reviewer-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .review-stars {
+            color: #f5b50a;
+            font-size: 18px;
+            margin-top: 4px;
+        }
+
+        .review-title {
+            margin: 12px 0 6px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .review-body {
+            color: #4b5563;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .reject-box {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #b91c1c;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .favorite-btn {
+    font-size: 32px;
+    cursor: pointer;
+    transition: transform 0.15s ease-in-out;
+    user-select: none;
+}
+
+.favorite-btn.liked {
+    color: #ff2e63;
+}
+
+.favorite-btn:active {
+    transform: scale(1.25);
+}
+
+/* Toast / Alert */
+.toast {
+    visibility: hidden;
+    min-width: 200px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 12px;
+    border-radius: 8px;
+    position: fixed;
+    z-index: 9999;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 30px;
+    font-size: 15px;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.toast.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Header and image section unchanged -->
+    <div class="header">
+        <a th:href="${role == 'ADMIN'} ? '/dashboardAdmin' : '/dashboard'" 
+         class="back-btn">⬅ Kembali
+        </a>
+
+        <h1 class="title" th:text="${warung.nama}"></h1>
+    </div>
+
+    <div th:if="${warung.status == 'rejected'}" class="reject-box">
+        <strong>Warung Ditolak</strong><br>
+        Alasan: <span th:text="${warung.rejectReason}"></span>
+    </div>
+    <!-- Tombol Favorite -->
+<button id="favBtn"
+        th:onclick="'toggleFavorite(' + ${warung.id} + ')'"
+        th:style="'font-size:30px;background:none;border:none;cursor:pointer;color:' 
+                   + (${isFavorite} ? 'red' : 'black')">
+    ♥
+</button>
+
+
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+
+
+    <div class="card">
+        <div class="image-box">
+            <img th:src="@{'/uploads/' + ${warung.imageName}}" alt="Foto Warung">
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="label">Alamat:</div>
+                <div class="value" th:text="${warung.alamat}"></div>
+            </div>
+
+            <div class="info-item">
+                <div class="label">Telepon:</div>
+                <div class="value" th:text="${warung.telepon}"></div>
+            </div>
+
+             <div class="info-item">
+                <div class="label">Rating:</div>
+                <div class="rating-stars">
+                    <!-- + FIX: Menampilkan rating warung dengan 5 bintang maksimal -->
+                    <span th:each="i : ${#numbers.sequence(1, 5)}">
+                        <span th:if="${i <= warung.rating}">★</span>
+                        <span th:if="${i > warung.rating}" style="color:#d1d5db">★</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="label">Tag (Kategori):</div>
+                <div class="value" th:text="${warung.tag}"></div>
+            </div>
+
+            <div class="info-item" style="grid-column: span 2;">
+                <div class="label">Deskripsi:</div>
+                <div class="value" th:text="${warung.deskripsi}"></div>
+            </div>
+
+            <div class="info-item">
+                <div class="label">Latitude:</div>
+                <div class="value" th:text="${warung.latitude}"></div>
+            </div>
+
+            <div class="info-item">
+                <div class="label">Longitude:</div>
+                <div class="value" th:text="${warung.longitude}"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MAP SECTION -->
+    <div class="card" style="padding:18px;">
+        <h3 style="margin:0 0 8px 0">Lokasi Warung</h3>
+
+        <div style="width: 100%; height: 260px; border-radius: 12px; overflow: hidden; border: 1px solid #dce3eb; margin-top: 10px;">
+            <iframe
+                th:src="@{'https://www.google.com/maps?q=' + ${warung.latitude} + ',' + ${warung.longitude} + '&hl=id&z=15&output=embed'}"
+                width="100%"
+                height="100%"
+                style="border:0;"
+                allowfullscreen
+                loading="lazy">
+            </iframe>
+        </div>
+    </div>
+
+</div>
+
+<!-- REVIEW SECTION -->
+<div class="container">
+    <div class="card">
+        <div class="header">
+            <h3 style="margin:0;">Ulasan Pengunjung</h3>
+            <a th:href="@{'/review/add/' + ${warung.id}}" class="btn" style="background:#d91c1c;">+ Tambah Ulasan</a>
+        </div>
+
+        <div th:if="${#lists.isEmpty(ulasan)}"
+             style="padding:20px; text-align:center; color:#6b7280; font-size:15px;">
+            Ups, belum ada ulasan nih 😢<br>
+            Jadilah yang pertama memberikan ulasan!
+        </div>
+
+        <div th:if="${not #lists.isEmpty(ulasan)}">
+            <div th:each="review : ${ulasan}" class="review-card">
+
+                <div class="review-header">
+                    <img class="avatar"
+                         th:src="@{'/uploads/profile/' + ${review.user.profilePicture}}"
+                         onerror="this.src='/icons/user.png'">
+                    <div>
+                        <div class="reviewer-name" th:text="${review.user != null ? review.user.username : 'Anonim'}"></div>
+                        <div class="review-stars">
+                            <!-- + FIX: Menampilkan rating review dengan 5 bintang maksimal -->
+                            <span th:each="i : ${#numbers.sequence(1, 5)}">
+                                <span th:if="${i <= review.rating}">★</span>
+                                <span th:if="${i > review.rating}" style="color:#d1d5db">★</span>
+                            </span>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="review-title" th:text="${review.title}"></div>
+                <div class="review-body" th:text="${review.comment}"></div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyAlamat(text) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text)
+            .then(() => alert("Alamat disalin!"))
+            .catch(() => fallbackCopy(text));
+    } else {
+        fallbackCopy(text);
+    }
+}
+
+function fallbackCopy(text) {
+    const temp = document.createElement("input");
+    temp.value = text;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand("copy");
+    temp.remove();
+    alert("Alamat disalin!");
+}
+
+const favIcon = document.getElementById("favIcon");
+const toast = document.getElementById("toast");
+const form = document.getElementById("favoriteForm");
+
+// Ketika icon ditekan → submit form → toggle
+favIcon.addEventListener("click", function () {
+
+    // Efek pop seperti IG
+    favIcon.style.transform = "scale(1.4)";
+    setTimeout(() => favIcon.style.transform = "scale(1)", 150);
+
+    // Submit form untuk add/remove
+    form.submit();
+
+    // Tampilkan toast
+    if (favIcon.classList.contains("liked")) {
+        showToast("Dihapus dari favorit");
+        favIcon.classList.remove("liked");
+    } else {
+        showToast("Ditambahkan ke favorit");
+        favIcon.classList.add("liked");
+    }
+});
+
+function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add("show");
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 1500);
+}
+
+
+function toggleFavorite(id) {
+
+    fetch('/favorite/' + id, {
+        method: 'POST'
+    })
+    .then(() => {
+        let btn = document.getElementById("favBtn");
+
+        if (btn.style.color === "red") {
+            btn.style.color = "black";
+            showAlert("Dihapus dari favorit ❌");
+        } else {
+            btn.style.color = "red";
+            showAlert("Ditambahkan ke favorit ❤️");
+        }
+    });
+}
+
+function showAlert(msg) {
+    const alert = document.createElement("div");
+    alert.innerText = msg;
+    alert.style.position = "fixed";
+    alert.style.bottom = "20px";
+    alert.style.left = "50%";
+    alert.style.transform = "translateX(-50%)";
+    alert.style.background = "#333";
+    alert.style.color = "#fff";
+    alert.style.padding = "12px 20px";
+    alert.style.borderRadius = "10px";
+    alert.style.opacity = "0";
+    alert.style.transition = "opacity 0.3s";
+
+    document.body.appendChild(alert);
+
+    setTimeout(() => alert.style.opacity = "1", 10);
+    setTimeout(() => {
+        alert.style.opacity = "0";
+        setTimeout(() => alert.remove(), 300);
+    }, 2000);
+}
+
+
+
+
+</script>
+
+</body>
+</html>

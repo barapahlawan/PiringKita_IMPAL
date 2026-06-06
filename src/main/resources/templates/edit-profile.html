@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        .main-content { display: flex; justify-content: center; padding: 40px; }
+        .profile-card {
+            background: white;
+            width: 100%;
+            max-width: 600px;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .card-header { text-align: center; margin-bottom: 40px; }
+
+        .avatar-container {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            margin: 0 auto 20px auto;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .avatar-container i { font-size: 60px; color: #333; }
+
+        .username-display { font-size: 24px; font-weight: 600; display: flex; gap: 10px; justify-content: center; }
+
+        .edit-icon-small {
+            font-size: 16px; color: #3b5998; cursor: pointer;
+            background: #eef2fd; padding: 8px; border-radius: 50%;
+        }
+
+        .form-group { display: flex; align-items: center; margin-bottom: 30px; }
+        .icon-label { width: 60px; font-size: 32px; text-align: center; margin-right: 20px; }
+        .icon-email { color: #a82424; }
+        .icon-phone { color: #6aa84f; }
+
+        .input-wrapper {
+            flex: 1; display: flex; align-items: center;
+            border: 1px solid #ddd; border-radius: 10px;
+            padding: 15px 20px;
+        }
+
+        .input-wrapper input { flex: 1; border: none; outline: none; font-size: 16px; }
+
+        .save-btn {
+            background: #3b66d1; color: white;
+            padding: 15px 60px;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* BOTTOM NAV */
+      .bottom-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            background: #ffffff;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            border-radius: 18px;
+            box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.18);
+            backdrop-filter: blur(10px);
+            animation: fadeUp 0.6s ease;
+        }
+
+        /* ITEM */
+        .nav-item {
+            position: relative;
+            width: 70px;
+            height: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        /* ANIMASI ICON */
+        .nav-item .nav-icon {
+            width: 26px;
+            height: 26px;
+            transition: transform 0.35s ease, opacity 0.3s ease;
+        }
+
+        /* AKTIF → naik + animasi melompat */
+        .nav-item.active {
+            transform: translateY(-22px) scale(1.05);
+            animation: bounce 0.4s ease;
+        }
+
+        .nav-item.active .nav-icon {
+            transform: scale(1.25) rotate(3deg);
+            filter: brightness(1.2);
+        }
+
+        /* BACKGROUND BULAT */
+        .nav-item.active::before {
+            content: "";
+            position: absolute;
+            top: -10px;
+            width: 55px;
+            height: 55px;
+            background: #e0f2ff;
+            border-radius: 50%;
+            z-index: -1;
+            box-shadow: 0 0 15px rgba(0, 170, 255, 0.4);
+            animation: pop 0.25s ease;
+        }
+
+        /* TEKS */
+        .nav-item span {
+            margin-top: 4px;
+            font-size: 12px;
+            opacity: 0;
+            transition: 0.25s ease;
+        }
+
+        .nav-item.active span {
+            opacity: 1;
+            transform: translateY(2px);
+        }
+
+        /* KEYFRAMES */
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translate(-50%, 20px); }
+            100% { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-26px); }
+            100% { transform: translateY(-22px); }
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .error-text {
+    color: #e74c3c;
+    font-size: 13px;
+    margin-top: 6px;
+    display: none;
+}
+.input-error {
+    border: 1px solid #e74c3c !important;
+}
+
+
+    </style>
+</head>
+
+<body>
+
+    <div class="main-content">
+        <div class="profile-card">
+
+            <!-- HEADER -->
+            <div class="card-header">
+
+                <div class="username-display">
+                    <span th:text="${user.username}">Username</span>
+                    <i class="fas fa-pen edit-icon-small"></i>
+                </div>
+            </div>
+
+            <!-- FORM EDIT -->
+            <form th:action="@{/edit-profile}" method="post" enctype="multipart/form-data">
+                <div style="text-align:center; margin-bottom:25px;">
+                    <label for="photoInput" style="cursor: pointer;">
+                        <img th:src="@{'/uploads/profile/' + ${user.profilePicture}}" 
+                            id="preview" 
+                            style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:2px solid #333;"
+                            onerror="this.src='/icons/user.png'">
+                    </label>
+
+                    <input type="file" id="photoInput" name="photo" accept="image/*" 
+                        onchange="previewImage(event)" style="display:none;">
+                        <div class="error-text" id="error-photo">
+                            Foto profil wajib diisi dan maksimal 5 MB
+                        </div>
+
+                </div>
+
+
+                
+
+                <div class="form-group">
+                    <div class="icon-label"><i class="far fa-user"></i></div>
+                    <div class="input-wrapper">
+                        <input type="text" name="username" th:value="${user.username}" placeholder="Username">
+                        <div class="error-text" id="error-username">
+                            Username tidak boleh kosong
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <div class="icon-label icon-email"><i class="far fa-envelope"></i></div>
+                    <div class="input-wrapper">
+                        <input type="email" name="email" th:value="${user.email}" placeholder="Email">
+                        <div class="error-text" id="error-email">
+                            Email wajib diisi dan harus menggunakan @gmail.com
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Telepon -->
+                <div class="form-group">
+                    <div class="icon-label icon-phone"><i class="fas fa-phone-alt"></i></div>
+                    <div class="input-wrapper">
+                        <input type="text" name="phone" th:value="${user.phone}" placeholder="Nomor Telepon">
+                        <div class="error-text" id="error-phone">
+                            Nomor telepon wajib diisi (10–15 digit angka)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-container" style="text-align:center;">
+                    <button type="submit" class="save-btn">Simpan Perubahan</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+      <a href="/dashboard" class="nav-item">
+        <img src="/icons/home.png" alt="Home" />
+      </a>
+
+      <a href="/tambahwarung" class="nav-item center-btn">
+        <img src="/icons/add.png" alt="Tambah" />
+      </a>
+
+      <a href="/profile" class="nav-item">
+        <img src="/icons/user.png" alt="User" />
+      </a>
+    </div>
+
+</body>
+<script>
+function previewImage(event) {
+    const reader = new FileReader();
+    reader.onload = function(){
+        document.getElementById('preview').src = reader.result;
+    };
+    reader.readAsDataURL(event.target.files[0]);
+}
+
+
+document.querySelector("form").addEventListener("submit", function (e) {
+    let valid = true;
+
+    function showError(input, errorId) {
+        document.getElementById(errorId).style.display = "block";
+        if (input) input.classList.add("input-error");
+        valid = false;
+    }
+
+    function clearError(input, errorId) {
+        document.getElementById(errorId).style.display = "none";
+        if (input) input.classList.remove("input-error");
+    }
+
+    /* =====================
+       FOTO (MAX 5MB)
+    ===================== */
+    const photoInput = document.getElementById("photoInput");
+
+    if (photoInput.files.length > 0) {
+        const file = photoInput.files[0];
+        if (file.size > 5 * 1024 * 1024) {
+            showError(photoInput, "error-photo");
+        } else {
+            clearError(photoInput, "error-photo");
+        }
+    } else {
+        clearError(photoInput, "error-photo");
+    }
+
+    /* =====================
+       USERNAME
+    ===================== */
+    const username = document.querySelector("input[name='username']");
+    username.value.trim() === ""
+        ? showError(username, "error-username")
+        : clearError(username, "error-username");
+
+    /* =====================
+       EMAIL
+    ===================== */
+    const email = document.querySelector("input[name='email']");
+    const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+    if (email.value.trim() === "" || !gmailRegex.test(email.value.trim())) {
+        showError(email, "error-email");
+    } else {
+        clearError(email, "error-email");
+    }
+
+    /* =====================
+       TELEPON
+    ===================== */
+    const phone = document.querySelector("input[name='phone']");
+    const phoneRegex = /^[0-9]{10,15}$/;
+
+    if (phone.value.trim() === "" || !phoneRegex.test(phone.value.trim())) {
+        showError(phone, "error-phone");
+    } else {
+        clearError(phone, "error-phone");
+    }
+
+    /* =====================
+       STOP SUBMIT
+    ===================== */
+    if (!valid) {
+        e.preventDefault();
+    }
+});
+
+
+
+
+
+
+</script>
+
+</html>

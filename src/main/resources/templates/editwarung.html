@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Warung</title>
+
+    <style>
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .upload-container {
+            width: 100%;
+            background: #f1f1f1;
+            border-radius: 12px;
+            height: 180px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            border: 2px dashed #ccc;
+            transition: all 0.3s ease;
+        }
+
+        .upload-container:hover {
+            border-color: #25D366;
+            background: #f8fff8;
+        }
+
+        .upload-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .upload-btn {
+            display: block;
+            width: 140px;
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px auto;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background: #1ea952;
+            transform: translateY(-2px);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+    display: block;
+    font-weight: 600;
+    margin-top: 18px;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #e1e8ed;
+            margin-top: 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #25D366;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+        }
+
+        textarea {
+            height: 80px;
+        }
+
+        /* TAG INPUT */
+        .tag-input-container { position: relative; }
+
+        .tag-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .tags-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .tag-item {
+            background: #25D366;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* RATING */
+        .rating-section {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .rating-stars {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            font-size: 40px;
+        }
+
+        .rating-stars input { display: none; }
+
+        .rating-stars label {
+            color: #ccc;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .rating-stars label:hover,
+        .rating-stars input:checked ~ label {
+            color: gold;
+            transform: scale(1.1);
+        }
+
+        .rating-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .btn-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            gap: 10px;
+        }
+
+        .btn-small {
+            flex: 1;
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 16px;
+            margin-top: 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            margin: 0;
+            padding: 0 16px 200px 16px;
+            background: #f4f6f9;
+        }
+
+        .popup-bg {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .popup {
+            background: white;
+            width: 90%;
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 400px;
+        }
+
+        /* ================================
+        GLOBAL PAGE STYLE
+        ================================ */
+        body {
+            font-family: Arial, sans-serif;
+            background: #f6f6f6;
+            padding: 0;
+            margin: 0;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 18px;
+            margin-top: 10px;
+            color: #333;
+        }
+
+        /* ================================
+        FORM & INPUT UI
+        ================================ */
+        form {
+            width: 88%;
+            max-width: 420px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 0 10px #0001;
+        }
+
+        label {
+            font-weight: bold;
+            color: #444;
+            display: block;
+            margin-top: 12px;
+        }
+
+        .input-group {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1.5px solid #ddd;
+    padding: 10px 14px;
+    border-radius: 12px;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+.input-group:focus-within {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px #007bff33;
+}
+        .input-group .icon {
+    font-size: 20px;
+    opacity: 0.7;
+}
+
+        .input-group textarea {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 15px;
+}
+
+/* Textarea tanpa resize agar rapi */
+textarea {
+    resize: none;
+}
+
+        /* ================================
+        TAG STYLE
+        ================================ */
+        .tag-container {
+    background: #fff;
+    border: 1.5px solid #ddd;
+    padding: 10px;
+    border-radius: 12px;
+}
+
+       #tagInput {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    outline: none;
+    background: transparent;
+}
+
+#tagList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 5px;
+}
+
+.tag {
+    background: #007bff;
+    padding: 5px 10px;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+        /* ================================
+        RATING UI
+        ================================ */
+        .rating {
+            display: flex;
+            flex-direction: row-reverse;
+            gap: 6px;
+            font-size: 26px;
+            cursor: pointer;
+        }
+
+        .rating input {
+            display: none;
+        }
+
+        .rating label {
+            color: #ccc;
+        }
+
+        .rating input:checked ~ label {
+            color: #ff9800;
+        }
+        .rating label:hover,
+        .rating label:hover ~ label {
+            color: #ffb84d;
+        }
+
+        /* ================================
+        UPLOAD FOTO
+        ================================ */
+        .upload-container {
+            width: 100%;
+            height: 200px;
+            border: 2px dashed #bbb;
+            border-radius: 12px;
+            background: #fafafa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .upload-btn {
+            width: 100%;
+            margin-top: 10px;
+            background: #444;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .upload-btn:hover {
+            background: #333;
+        }
+
+        /* ================================
+        LOKASI BUTTONS
+        ================================ */
+        .loc-btn {
+    margin-top: 10px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 14px;
+    background: #28a745;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.loc-btn:hover {
+    background: #218838;
+}
+        .loc-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ================================
+        MAP POPUP
+        ================================ */
+        .map-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0008;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .map-popup-content {
+            width: 90%;
+            max-width: 420px;
+            background: white;
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: 0 0 20px #0003;
+        }
+
+        .close-map-btn {
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .close-map-btn:hover {
+            background: #c82333;
+        }
+
+        /* ================================
+        SAVE BUTTON
+        ================================ */
+        .save-btn {
+            width: 100%;
+            background: #007bff;
+            color: white;
+            padding: 12px;
+            border: none;
+            margin-top: 15px;
+            font-size: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .save-btn:hover {
+            background: #0069d9;
+        }
+
+        /* ================================
+        TOAST NOTIFICATION
+        ================================ */
+        #toast {
+            visibility: hidden;
+            min-width: 220px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 12px;
+            position: fixed;
+            z-index: 99999;
+            left: 50%;
+            bottom: 40px;
+            transform: translateX(-50%);
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        #map {
+    width: 100%;
+    height: 350px;   /* wajib */
+}
+.back-btn {
+    display: inline-block;
+    margin-top: 20px;
+    margin-left: 20px;
+    padding: 10px 18px;
+    background-color: #1ed162;
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease; /* animasi halus */
+}
+
+/* efek saat hover */
+.back-btn:hover {
+    background-color: #18b955; /* warna sedikit lebih gelap */
+    transform: translateY(-2px); /* naik sedikit */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+.error-text {
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: 4px;
+    display: none;
+}
+
+.input-error {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 2px rgba(220,53,69,0.15);
+}
+
+    </style>
+</head>
+
+<body>
+<a href="/history" class="back-btn">← Kembali</a>
+<h2>Edit Warung</h2>
+
+<form th:action="@{'/warung/update/' + ${warung.id}}" method="post" enctype="multipart/form-data">
+
+    <!-- FOTO -->
+    <label>Foto Restaurant</label>
+
+    <div class="upload-container" id="previewBox">
+        <img id="previewImage" 
+             th:src="${warung.imageName != null ? '/uploads/' + warung.imageName : '/icons/camera.png'}"
+             style="width: 100%; object-fit: cover; opacity: 0.9;">
+    </div>
+
+    <button type="button" onclick="document.getElementById('fileInput').click()" class="upload-btn">
+        📷 Ganti Gambar
+    </button>
+    <input type="file" id="fileInput" name="image" accept="image/*">
+    <div class="error-text" id="error-image">
+    Foto wajib diunggah dan maksimal 5 MB
+</div>
+        <!-- NAMA WARUNG -->
+    <label for="nama">Nama Warung</label>
+    <div class="input-group">
+        
+        <input type="text" id="nama" name="nama" th:value="${warung.nama}" required>
+        <div class="error-text" id="error-nama">Nama warung wajib diisi</div>
+    </div>
+
+    <!-- ALAMAT -->
+    <label for="alamat">Alamat</label>
+    <div class="input-group">
+        
+        <textarea id="alamat" name="alamat" rows="2" required
+                  th:text="${warung.alamat}"></textarea>
+                  <div class="error-text" id="error-alamat">Alamat wajib diisi</div>
+    </div>
+
+    <!-- TELEPON -->
+    <label for="telepon">Nomor Telepon</label>
+    <div class="input-group">
+        
+        <input type="text" id="telepon" name="telepon" th:value="${warung.telepon}">
+        <div class="error-text" id="error-telepon">
+    Nomor telepon wajib diisi dan hanya angka
+</div>
+    </div>
+
+
+    <!-- DESKRIPSI -->
+    <label for="deskripsi">Deskripsi</label>
+    <div class="input-group">
+        
+        <textarea id="deskripsi" name="deskripsi" rows="3"
+                  th:text="${warung.deskripsi}"></textarea>
+                  <div class="error-text" id="error-deskripsi">
+    Deskripsi minimal 10 karakter
+</div>
+
+    </div>
+
+    <!-- TAG -->
+    <label>Tag</label>
+    <div class="tag-container" id="tagContainer">
+        <input type="text" id="tagInput" placeholder="Tambah tag lalu tekan Enter">
+        <div id="tagList">
+            <!-- Tag awal dari DB -->
+            <span class="tag" th:each="t : ${#strings.arraySplit(warung.tag, ',')}"
+                  th:text="${t}">
+            </span>
+        </div>
+        <input type="hidden" id="tagHidden" name="tag" th:value="${warung.tag}">
+        <div class="error-text" id="error-tag">
+    Minimal 1 tag harus ditambahkan
+</div>
+    </div>
+
+    <!-- RATING -->
+    <label>Rating</label>
+    <div class="rating">
+        <input type="radio" id="star5" name="rating" value="5" 
+               th:checked="${warung.rating == 5}">
+        <label for="star5">★</label>
+
+        <input type="radio" id="star4" name="rating" value="4"
+               th:checked="${warung.rating == 4}">
+        <label for="star4">★</label>
+
+        <input type="radio" id="star3" name="rating" value="3"
+               th:checked="${warung.rating == 3}">
+        <label for="star3">★</label>
+
+        <input type="radio" id="star2" name="rating" value="2"
+               th:checked="${warung.rating == 2}">
+        <label for="star2">★</label>
+
+        <input type="radio" id="star1" name="rating" value="1"
+               th:checked="${warung.rating == 1}">
+        <label for="star1">★</label>
+        <div class="error-text" id="error-rating">Silakan pilih rating</div>
+    </div>
+
+    <!-- KOORDINAT -->
+    <label>Koordinat Lokasi</label>
+    <div class="input-group">
+        <span class="icon">🌐</span>
+        <input type="text" id="latitude" name="latitude" th:value="${warung.latitude}" readonly>
+        <div class="error-text" id="error-lat">Lokasi belum dipilih</div>
+    </div>
+
+    <div class="input-group">
+        <span class="icon">🧭</span>
+        <input type="text" id="longitude" name="longitude" th:value="${warung.longitude}" readonly>
+        <div class="error-text" id="error-lng">Lokasi belum dipilih</div>
+    </div>
+
+    <button type="button" class="loc-btn" onclick="openMapPopup()">
+        📌 Pilih Lokasi di Map
+    </button>
+
+    
+
+    <br><br>
+
+    <button type="submit" class="save-btn">💾 Simpan Perubahan</button>
+
+</form>
+
+
+<!-- POPUP MAP -->
+<div class="map-popup" id="mapPopup">
+    <div class="map-popup-content">
+        <div id="map" style="width: 100%; height: 320px;"></div>
+        <button type="button" class="loc-btn" style="background: #007bff;" onclick="useCurrentLocation()">
+        📍 Gunakan Lokasi Sekarang
+    </button>
+        <button onclick="closeMapPopup()" class="close-map-btn">Tutup</button>
+    </div>
+</div>
+
+
+<!-- TOAST NOTIF -->
+<div id="toast"></div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ================================
+   PREVIEW GAMBAR SAAT DIPILIH
+================================ */
+document.getElementById("fileInput").addEventListener("change", function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById("previewImage").src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+
+/* ================================
+   TAG SYSTEM
+================================ */
+const tagInput = document.getElementById("tagInput");
+const tagList = document.getElementById("tagList");
+const tagHidden = document.getElementById("tagHidden");
+
+function refreshHiddenTag() {
+    const tags = [...tagList.querySelectorAll(".tag")].map(t => t.textContent.trim());
+    tagHidden.value = tags.join(",");
+}
+
+tagInput.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        const val = tagInput.value.trim();
+        if (val !== "") {
+            const span = document.createElement("span");
+            span.className = "tag";
+            span.textContent = val;
+            span.onclick = () => { span.remove(); refreshHiddenTag(); };
+            tagList.appendChild(span);
+            refreshHiddenTag();
+            tagInput.value = "";
+        }
+    }
+});
+
+document.querySelectorAll("#tagList .tag").forEach(tag => {
+    tag.onclick = () => { tag.remove(); refreshHiddenTag(); };
+});
+</script>
+<script>
+/* ================================
+   MAP POPUP (LEAFLET)
+================================ */
+let map;
+let marker;
+
+function openMapPopup() {
+    document.getElementById("mapPopup").style.display = "flex";
+
+    setTimeout(() => {
+
+        const lat = parseFloat(document.getElementById("latitude").value) || -6.200;
+        const lng = parseFloat(document.getElementById("longitude").value) || 106.816;
+
+        if (!map) {
+            map = L.map("map").setView([lat, lng], 15);
+
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                maxZoom: 19,
+                attribution: "&copy; OpenStreetMap"
+            }).addTo(map);
+
+            map.on("click", function(e) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+
+                if (marker) marker.remove();
+                marker = L.marker([lat, lng]).addTo(map);
+
+                document.getElementById("latitude").value = lat;
+                document.getElementById("longitude").value = lng;
+
+                showToast("📌 Lokasi diperbarui!", "success");
+            });
+
+        } else {
+            map.setView([lat, lng], 15);
+        }
+
+        // PENTING: INI HARUS DI SETELAH popup muncul
+        setTimeout(() => map.invalidateSize(), 200);
+
+    }, 50);
+}
+
+
+function closeMapPopup() {
+    document.getElementById("mapPopup").style.display = "none";
+}
+
+
+/* ================================
+   GPS — Lokasi Saat Ini
+================================ */
+function useCurrentLocation() {
+    showToast("⏳ Mengambil lokasi...", "info");
+
+    const btns = document.querySelectorAll(".loc-btn");
+    btns.forEach(btn => btn.disabled = true);
+
+    navigator.geolocation.getCurrentPosition(
+        function (position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            document.getElementById("latitude").value = lat;
+            document.getElementById("longitude").value = lng;
+
+            if (map) {
+                if (marker) marker.remove();
+                marker = L.marker([lat, lng]).addTo(map);
+                map.setView([lat, lng], 17);
+            }
+
+            showToast("📍 Lokasi berhasil ditemukan!", "success");
+            resetButton();
+        },
+
+        function (error) {
+            showToast("❌ Gagal mendapatkan lokasi! Izinkan akses GPS.", "error");
+            console.error(error);
+            resetButton();
+        },
+
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        }
+    );
+}
+
+function resetButton() {
+    const btns = document.querySelectorAll(".loc-btn");
+    btns.forEach(btn => btn.disabled = false);
+}
+
+
+/* ================================
+   TOAST NOTIFICATION
+================================ */
+function showToast(message, type = "info") {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+
+    const colors = {
+        success: "#28a745",
+        error: "#dc3545",
+        info: "#17a2b8"
+    };
+
+    toast.style.background = colors[type] || "#17a2b8";
+    toast.className = "show";
+
+    setTimeout(() => {
+        toast.className = toast.className.replace("show", "");
+    }, 3500);
+}
+
+
+document.querySelector("form").addEventListener("submit", function(e) {
+    let valid = true;
+
+    function showError(input, errorId) {
+        document.getElementById(errorId).style.display = "block";
+        if (input) input.classList.add("input-error");
+        valid = false;
+    }
+
+    function clearError(input, errorId) {
+        document.getElementById(errorId).style.display = "none";
+        if (input) input.classList.remove("input-error");
+    }
+
+    /* =====================
+       NAMA
+    ===================== */
+    const nama = document.getElementById("nama");
+    nama.value.trim() === ""
+        ? showError(nama, "error-nama")
+        : clearError(nama, "error-nama");
+
+    /* =====================
+       ALAMAT
+    ===================== */
+    const alamat = document.getElementById("alamat");
+    alamat.value.trim() === ""
+        ? showError(alamat, "error-alamat")
+        : clearError(alamat, "error-alamat");
+
+    /* =====================
+       TELEPON
+    ===================== */
+    const telepon = document.getElementById("telepon");
+    const phoneRegex = /^[0-9]{10,15}$/;
+
+    (!phoneRegex.test(telepon.value.trim()))
+        ? showError(telepon, "error-telepon")
+        : clearError(telepon, "error-telepon");
+
+    /* =====================
+       DESKRIPSI
+    ===================== */
+    const deskripsi = document.getElementById("deskripsi");
+    deskripsi.value.trim().length < 10
+        ? showError(deskripsi, "error-deskripsi")
+        : clearError(deskripsi, "error-deskripsi");
+
+    /* =====================
+       TAG
+    ===================== */
+    const tagHidden = document.getElementById("tagHidden");
+    tagHidden.value.trim() === ""
+        ? showError(null, "error-tag")
+        : clearError(null, "error-tag");
+
+    /* =====================
+       RATING
+    ===================== */
+    const ratingChecked = document.querySelector('input[name="rating"]:checked');
+    ratingChecked
+        ? document.getElementById("error-rating").style.display = "none"
+        : (document.getElementById("error-rating").style.display = "block", valid = false);
+
+    /* =====================
+       KOORDINAT
+    ===================== */
+    const lat = document.getElementById("latitude");
+    const lng = document.getElementById("longitude");
+
+    lat.value === "" ? showError(lat, "error-lat") : clearError(lat, "error-lat");
+    lng.value === "" ? showError(lng, "error-lng") : clearError(lng, "error-lng");
+
+    /* =====================
+       STOP SUBMIT
+    ===================== */
+    if (!valid) {
+        e.preventDefault();
+        showToast("❗ Lengkapi data yang masih salah / kosong", "error");
+    }
+});
+
+
+document.querySelector("form").addEventListener("submit", function(e) {
+    let valid = true;
+
+    function showError(input, errorId) {
+        document.getElementById(errorId).style.display = "block";
+        if (input) input.classList.add("input-error");
+        valid = false;
+    }
+
+    function clearError(input, errorId) {
+        document.getElementById(errorId).style.display = "none";
+        if (input) input.classList.remove("input-error");
+    }
+
+    /* =====================
+       FOTO
+    ===================== */
+    const fileInput = document.getElementById("fileInput");
+    const errorImage = document.getElementById("error-image");
+    const previewImage = document.getElementById("previewImage");
+
+    const hasOldImage = previewImage && !previewImage.src.includes("camera.png");
+
+    if (!fileInput.files.length && !hasOldImage) {
+        showError(fileInput, "error-image");
+    } else if (fileInput.files.length) {
+        const file = fileInput.files[0];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+
+        if (file.size > maxSize) {
+            showError(fileInput, "error-image");
+        } else {
+            clearError(fileInput, "error-image");
+        }
+    } else {
+        clearError(fileInput, "error-image");
+    }
+
+    /* =====================
+       (lanjutan validasi field lain)
+    ===================== */
+
+    if (!valid) {
+        e.preventDefault();
+        showToast("❗ Periksa kembali data, masih ada yang salah", "error");
+    }
+});
+
+
+document.getElementById("fileInput").addEventListener("change", function () {
+    const file = this.files[0];
+    const errorImage = document.getElementById("error-image");
+
+    if (!file) {
+        errorImage.style.display = "block";
+        errorImage.textContent = "Foto wajib diunggah";
+        return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+        errorImage.style.display = "block";
+        errorImage.textContent = "Ukuran foto maksimal 5 MB";
+        this.value = ""; // reset file
+    } else {
+        errorImage.style.display = "none";
+    }
+});
+
+
+</script>
+
+</body>
+</html>

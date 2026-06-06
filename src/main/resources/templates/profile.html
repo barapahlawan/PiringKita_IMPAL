@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>User Profile</title>
+
+    <!-- INLINE CSS -->
+    <style>
+      
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+      /* HEADER PROFILE */
+      .profile-header {
+        text-align: center;
+        padding: 30px 20px;
+        position: relative;
+        border-bottom: 2px solid #dcdcdc;
+      }
+
+      .avatar {
+        width:120px;
+        height:120px;
+        border-radius:50%;
+        object-fit:cover;
+        border:2px solid #333;
+    }
+
+
+      .username {
+        font-size: 18px;
+        margin-top: 10px;
+      }
+
+      .edit-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 22px;
+        text-decoration: none;
+      }
+
+      .logout-btn {
+        position: absolute;
+        top: 25px;
+        left: 20px; /* Posisi Kiri Atas */
+        cursor: pointer;
+        transition: transform 0.2s;
+        background: none;
+        border: none;
+        padding: 0;
+      }
+      .logout-btn:hover {
+        transform: scale(1.1);
+      }
+
+      .logout-icon {
+        width: 24px;
+        height: 24px;
+      }
+
+      /* CONTACT SECTION */
+      .contact-section {
+        padding: 20px;
+      }
+
+      .input-group {
+        position: relative;
+        margin-bottom: 15px;
+      }
+
+      .icon {
+        position: absolute;
+        left: 10px;
+        top: 9px;
+        font-size: 20px;
+      }
+
+      .input-group input {
+        width: 100%;
+        padding: 12px 12px 12px 40px;
+        border: 1px solid #c5c5c5;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+
+      /* REVIEW SECTION */
+      .reviews-title {
+        font-size: 20px;
+        font-weight: bold;
+        padding: 10px 20px;
+      }
+
+      .review-card {
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 0 20px 30px;
+      }
+
+      .stars {
+        font-size: 20px;
+      }
+
+      .review-title {
+        margin: 8px 0 4px;
+        font-size: 18px;
+      }
+
+      .review-body {
+        color: #555;
+        margin-bottom: 15px;
+      }
+
+      .review-footer {
+        display: flex;
+        align-items: center;
+      }
+
+      .review-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        margin-right: 10px;
+      }
+
+      .review-user {
+        font-weight: bold;
+      }
+
+      .review-date {
+        font-size: 13px;
+        color: #777;
+      }
+
+      /* BOTTOM NAV */
+          
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body {
+            background-color: #f4f6f9;
+            color: #333;
+            min-height: 100vh;
+            padding: 0px 16px 120px 16px;
+            padding-bottom: 100px;
+        }
+
+    /* ===== BOTTOM NAV STYLE ===== */
+
+    .bottom-nav {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        background: #ffffff;
+        padding: 10px 16px;
+        display: flex;
+        justify-content: space-between;
+        border-radius: 18px;
+        box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.18);
+        backdrop-filter: blur(10px);
+        animation: fadeUp 0.6s ease;
+    }
+
+    /* ITEM */
+    .nav-item {
+        position: relative;
+        width: 70px;
+        height: 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #888;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+
+    /* ANIMASI ICON */
+    .nav-item .nav-icon {
+        width: 26px;
+        height: 26px;
+        transition: transform 0.35s ease, opacity 0.3s ease;
+    }
+
+    /* AKTIF → naik + animasi melompat */
+    .nav-item.active {
+        transform: translateY(-22px) scale(1.05);
+        animation: bounce 0.4s ease;
+    }
+
+    .nav-item.active .nav-icon {
+        transform: scale(1.25) rotate(3deg);
+        filter: brightness(1.2);
+    }
+
+    /* BACKGROUND BULAT */
+    .nav-item.active::before {
+        content: "";
+        position: absolute;
+        top: -10px;
+        width: 55px;
+        height: 55px;
+        background: #e0f2ff;
+        border-radius: 50%;
+        z-index: -1;
+        box-shadow: 0 0 15px rgba(0, 170, 255, 0.4);
+        animation: pop 0.25s ease;
+    }
+
+    /* TEKS */
+    .nav-item span {
+        margin-top: 4px;
+        font-size: 12px;
+        opacity: 0;
+        transition: 0.25s ease;
+    }
+
+    .nav-item.active span {
+        opacity: 1;
+        transform: translateY(2px);
+    }
+
+    /* KEYFRAMES */
+    @keyframes fadeUp {
+        0% { opacity: 0; transform: translate(-50%, 20px); }
+        100% { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    @keyframes bounce {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-26px); }
+        100% { transform: translateY(-22px); }
+    }
+
+    @keyframes pop {
+        0% { transform: scale(0.5); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Tombol Edit & Hapus */
+  .btn-edit, .btn-delete {
+      padding: 8px 12px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+  }
+
+  .btn-edit {
+      background: #4a90e2;
+      color: white;
+  }
+
+  .btn-delete {
+      background: #d9534f;
+      color: white;
+  }
+
+  /* Popup Background */
+  .popup-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 3000;
+  }
+
+  /* Popup Card */
+  .popup-card {
+      background: white;
+      width: 90%;
+      max-width: 420px;
+      padding: 25px;
+      border-radius: 15px;
+      animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+      0% { opacity:0; transform:scale(0.9); }
+      100% { opacity:1; transform:scale(1); }
+  }
+
+  /* Input di popup */
+  .popup-card input,
+  .popup-card textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 6px;
+      margin-bottom: 12px;
+  }
+
+  /* Tombol popup */
+  .popup-btn {
+    padding: 12px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    border: none;
+    min-width: 100px;      /* untuk ukuran minimum */
+    text-align: center;
+    text-decoration: none; /* Menghapus garis bawah */
+    display: inline-block; /* Agar padding berfungsi pada tag <a> */
+}
+
+.popup-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+
+  .btn-cancel {
+      background: #aaa;
+      color: white;
+  }
+
+  .btn-save {
+      background: #25D366;
+      color: white;
+  }
+
+  .btn-confirm-delete, 
+      .btn-confirm-logout {
+          background-color: #d9534f; /* Merah */
+          color: white;
+      }
+      
+      .btn-confirm-logout:hover {
+          background-color: #c9302c; /* Merah lebih gelap saat hover */
+      }
+
+    </style>
+  </head>
+
+  <body>
+    
+    <!-- HEADER PROFILE -->
+    <div class="profile-header">
+
+
+      <button onclick="openLogoutPopup()" class="logout-btn">
+         <img src="/icons/logout.png" alt="Logout" class="logout-icon">
+      </button>
+      <!-- FOTO PROFIL -->
+      <img class="avatar"
+        th:src="@{'/uploads/profile/' + ${profilePicture} + '?v=' + ${#dates.createNow().getTime()}}"
+        onerror="this.src='/icons/user.png'">
+
+
+
+      <div class="username" th:text="'@' + ${username}"></div>
+
+      <a href="/edit-profile" class="edit-btn">✏</a>
+    </div>
+
+
+    <!-- CONTACT SECTION -->
+    <div class="contact-section">
+       <div class="input-group">
+        <span class="icon">📧</span>
+        <input type="email" th:value="${email}" readonly/>
+      </div>
+
+      <!-- No Telepon (sudah dimasking dari backend) -->
+      <div class="input-group">
+        <span class="icon">📞</span>
+        <input type="text" th:value="${phone}" readonly/>
+      </div>
+    </div>
+
+    <!-- REVIEWS -->
+    <div class="reviews-title">Latest reviews</div>
+
+<!-- Jika tidak ada review -->
+<div th:if="${#lists.isEmpty(reviews)}"
+     style="text-align:center; color:#777; padding:10px;">
+    Belum ada ulasan yang Anda buat.
+</div>
+
+    <!-- Jika ada review -->
+   <div th:each="rv : ${reviews}" class="review-card">
+
+    <div class="stars">
+    <span th:each="i : ${#numbers.sequence(1, rv.rating)}">★</span>
+    
+    <span th:if="${rv.rating < 5}" 
+          th:each="i : ${#numbers.sequence(rv.rating + 1, 5)}" 
+          style="color:#dcdcdc;">★</span>
+</div>
+
+    <h3 class="review-title"
+        th:attr="data-title=${rv.id}"
+        th:text="${rv.title}">
+    </h3>
+
+    <p class="review-body"
+        th:attr="data-comment=${rv.id}"
+        th:text="${rv.comment}">
+    </p>
+
+    <div hidden
+         th:attr="data-rating-id=${rv.id}, data-rating=${rv.rating}">
+    </div>
+
+    <div class="review-footer">
+        <img th:src="@{'/uploads/profile/' + ${rv.user.profilePicture}}"
+            class="review-avatar"
+            onerror="this.src='/icons/user.png'">
+
+        <div>
+            <div class="review-user" th:text="${rv.user.username}"></div>
+
+            <div class="review-date"
+                th:text="${#dates.format(rv.createdAt, 'dd MMM yyyy')}">
+            </div>
+        </div>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:10px;">
+        <button class="btn-edit"
+        th:onclick="'openEditPopup(' + ${rv.id} + ')'">Edit</button>
+
+
+       <button class="btn-delete" 
+        th:onclick="'openDeletePopup(' + ${rv.id} + ')'">Hapus</button>
+
+    </div>
+
+</div>
+
+
+    <!-- POPUP EDIT REVIEW -->
+<div class="popup-bg" id="editPopup">
+    <div class="popup-card">
+        <h3>Edit Review</h3>
+
+        <form id="editForm" method="post">
+
+          <input type="hidden" name="id" id="editId">
+
+
+            <label>Rating</label>
+            <input type="number" name="rating" min="1" max="5" id="editRating">
+
+           <label>Judul</label>
+            <input type="text" 
+                  name="title" 
+                  id="editTitle"
+                  required
+                  minlength="3"
+                  maxlength="50"
+                  placeholder="Masukkan judul ulasan">
+
+            <label>Ulasan</label>
+            <textarea name="comment" 
+                      id="editComment" 
+                      rows="4"
+                      required
+                      minlength="5"
+                      placeholder="Tulis ulasan Anda"></textarea>
+
+
+            <div class="popup-actions">
+                <button type="button" class="popup-btn btn-cancel" onclick="closeEditPopup()">Batal</button>
+                <button type="submit" class="popup-btn btn-save">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- POPUP DELETE -->
+<div class="popup-bg" id="deletePopup">
+    <div class="popup-card">
+        <h3>Hapus review ini?</h3>
+        <p style="margin-bottom:20px;">Tindakan ini tidak dapat dibatalkan.</p>
+
+        <div class="popup-actions">
+            <button class="popup-btn btn-cancel" onclick="closeDeletePopup()">Batal</button>
+            <form id="deleteForm" method="post">
+    <button type="submit" class="popup-btn btn-confirm-delete">Hapus</button>
+</form>
+
+        </div>
+    </div>
+</div>
+
+<div class="popup-bg" id="logoutPopup">
+    <div class="popup-card">
+        <h3>Konfirmasi Keluar</h3>
+        <p style="margin-bottom:20px;">Apakah Anda yakin ingin keluar dari akun?</p>
+
+        <div class="popup-actions">
+            <button class="popup-btn btn-cancel" onclick="closeLogoutPopup()">Batal</button>
+            
+            <a href="/login" class="popup-btn btn-confirm-logout">Keluar</a>
+        </div>
+    </div>
+  </div>
+
+    <div class="bottom-nav">
+      <a href="/dashboard" class="nav-item">
+        <img src="/icons/home.png" alt="Home" />
+      </a>
+
+      <a href="/tambahwarung" class="nav-item center-btn">
+        <img src="/icons/add.png" alt="Tambah" />
+      </a>
+
+      <a href="/profile" class="nav-item">
+        <img src="/icons/user.png" alt="User" />
+      </a>
+    </div>
+
+    
+  </body>
+  <script>
+function openEditPopup(id) {
+    document.getElementById("editForm").action = "/review/update";
+
+    document.getElementById("editId").value = id;  // <-- WAJIB!
+
+    const title = document.querySelector(`[data-title='${id}']`).innerText;
+    const comment = document.querySelector(`[data-comment='${id}']`).innerText;
+    const rating = document.querySelector(`[data-rating-id='${id}']`).dataset.rating;
+
+    document.getElementById("editRating").value = rating;
+    document.getElementById("editTitle").value = title;
+    document.getElementById("editComment").value = comment;
+
+    document.getElementById("editPopup").style.display = "flex";
+}
+
+
+
+function closeEditPopup() {
+    document.getElementById("editPopup").style.display = "none";
+}
+
+function openDeletePopup(id) {
+    document.getElementById("deleteForm").action = "/review/delete/" + id;
+    document.getElementById("deletePopup").style.display = "flex";
+}
+
+function closeDeletePopup() {
+    document.getElementById("deletePopup").style.display = "none";
+}
+// LOGOUT Functions (BARU)
+function openLogoutPopup() {
+    document.getElementById("logoutPopup").style.display = "flex";
+}
+function closeLogoutPopup() {
+        document.getElementById("logoutPopup").style.display = "none";
+    }
+
+</script>
+
+</html>
