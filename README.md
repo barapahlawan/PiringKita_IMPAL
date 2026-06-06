@@ -25,6 +25,8 @@ Aplikasi PiringKita! dikembangkan menggunakan arsitektur berbasis layanan (*serv
 - **Database (Lapisan Basis Data)**: MySQL / PostgreSQL
 - **Layanan API**: Peta Interaktif (Leaflet.js / OpenStreetMap API)
 
+<div align="center">
+  
 ## 👥 Tim PiringKita! (Kelompok 6)
 | NIM | Nama |
 | :--- | :--- |
@@ -37,3 +39,5 @@ Aplikasi PiringKita! dikembangkan menggunakan arsitektur berbasis layanan (*serv
 <br>
 
 **© 2025 Program Studi S-1 Informatika,** **Fakultas Informatika** **Universitas Telkom, Bandung**
+
+</div>
