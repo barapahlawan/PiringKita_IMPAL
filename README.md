@@ -20,9 +20,9 @@ Proyek ini dibangun untuk memenuhi Tugas Besar mata kuliah **CAK3BAB3 - Implemen
 
 ## 🛠️ Tech Stack (Teknologi yang Digunakan)
 Aplikasi PiringKita! dikembangkan menggunakan arsitektur berbasis layanan (*service-oriented architecture*) dengan pembagian:
-- **Frontend (Lapisan Presentasi)**: HTML, CSS, JavaScript
-- **Backend (Lapisan Logika Bisnis)**: Java
-- **Database (Lapisan Basis Data)**: MySQL / PostgreSQL
+- **Frontend**: HTML, CSS, JavaScript
+- **Backend**: Java
+- **Database**: MySQL / PostgreSQL
 - **Layanan API**: Peta Interaktif (Leaflet.js / OpenStreetMap API)
 
 <div align="center">
