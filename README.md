@@ -1,6 +1,6 @@
 <div align="center">
   
-# 🍽️ PiringKita_IMPAL 😋
+# 🍽️ Tugas Besar Implementasi dan Pengujian Perangkat Lunak (PiringKita!) 😋
 
 </div>
 
